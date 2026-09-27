@@ -8,6 +8,8 @@ import fr.lkdm.homecore.api.metric.MetricTypes;
 import fr.lkdm.homecore.api.metric.Percentage;
 import fr.lkdm.homecore.api.metric.Unit;
 import fr.lkdm.homecore.api.metric.UpdatePolicy;
+import fr.lkdm.homecore.api.network.HomeNetwork;
+import fr.lkdm.homecore.api.network.NetworkMember;
 import fr.lkdm.homelink.energy.blockentity.EnergyDeviceBlockEntity;
 import java.time.Instant;
 import java.util.Map;
@@ -19,6 +21,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import com.mojang.logging.LogUtils;
 
@@ -27,7 +30,7 @@ import com.mojang.logging.LogUtils;
  * event publishing. Metrics are refreshed about once per second by the block entity; events are
  * only published on transitions, never once per tick.
  */
-public abstract class EnergyDevice implements DashboardDevice {
+public abstract class EnergyDevice implements DashboardDevice, NetworkMember {
     protected final EnergyDeviceBlockEntity entity;
     protected final UUID identity;
     private final Consumer<DeviceEvent> events;
@@ -87,7 +90,15 @@ public abstract class EnergyDevice implements DashboardDevice {
     }
 
     @Override public UUID id() { return identity; }
-    @Override public Component displayName() { return entity.getBlockState().getBlock().getName(); }
+    @Override public Component displayName() { return entity.name(); }
+
+    // NetworkMember: lets a dashboard move this block between networks while its recorded binding stays in step.
+    @Override public Optional<UUID> homeNetwork() { return entity.homeNetwork(); }
+    @Override public Optional<UUID> owner() { return entity.owner(); }
+    @Override public boolean canConfigure(ServerPlayer player) { return EnergyHomeCore.canConfigure(player, entity); }
+    @Override public void homeNetworkChanged(Optional<HomeNetwork> network) {
+        network.ifPresentOrElse(value -> entity.setHomeNetwork(value.id(), value.name()), entity::clearHomeNetwork);
+    }
     @Override public Optional<BlockPos> position() { return Optional.of(entity.getBlockPos().immutable()); }
     @Override public Optional<ResourceKey<Level>> dimension() {
         return entity.getLevel() == null ? Optional.empty() : Optional.of(entity.getLevel().dimension());

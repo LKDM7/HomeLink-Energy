@@ -8,7 +8,10 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -30,6 +33,8 @@ public abstract class EnergyDeviceBlockEntity extends BlockEntity implements Men
     @Nullable private UUID owner;
     @Nullable private UUID homeNetwork;
     private String homeNetworkName = "";
+    /** Name given with an anvil; travels with the item through the custom_name component. */
+    @Nullable private Component customName;
     @Nullable private EnergyDevice device;
     private int deviceRetry;
 
@@ -113,6 +118,28 @@ public abstract class EnergyDeviceBlockEntity extends BlockEntity implements Men
         setChanged();
     }
 
+    /** @return the anvil name when set, otherwise the block name */
+    public Component name() { return customName != null ? customName : getBlockState().getBlock().getName(); }
+
+    @Override
+    protected void applyImplicitComponents(BlockEntity.DataComponentInput input) {
+        super.applyImplicitComponents(input);
+        customName = input.get(DataComponents.CUSTOM_NAME);
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder components) {
+        super.collectImplicitComponents(components);
+        if (customName != null) components.set(DataComponents.CUSTOM_NAME, customName);
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void removeComponentsFromTag(CompoundTag tag) {
+        super.removeComponentsFromTag(tag);
+        tag.remove("CustomName");
+    }
+
     /** Only operators may place a block carrying saved block data, so items never copy energy. */
     @Override
     public boolean onlyOpCanSetNbt() { return true; }
@@ -126,6 +153,7 @@ public abstract class EnergyDeviceBlockEntity extends BlockEntity implements Men
             tag.putUUID("home_network", homeNetwork);
             tag.putString("home_network_name", homeNetworkName);
         }
+        if (customName != null) tag.putString("CustomName", Component.Serializer.toJson(customName, registries));
     }
 
     @Override
@@ -135,5 +163,6 @@ public abstract class EnergyDeviceBlockEntity extends BlockEntity implements Men
         owner = tag.hasUUID("owner") ? tag.getUUID("owner") : null;
         homeNetwork = tag.hasUUID("home_network") ? tag.getUUID("home_network") : null;
         homeNetworkName = homeNetwork == null ? "" : tag.getString("home_network_name");
+        customName = tag.contains("CustomName", CompoundTag.TAG_STRING) ? parseCustomNameSafe(tag.getString("CustomName"), registries) : null;
     }
 }

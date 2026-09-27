@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $dependencyPath = Join-Path $projectRoot '.dependencies/HomeCore'
-$commit = '55e252a64b3b6929c086624184274edf6a8d971e'
+$commit = '5ae6db2864809d53308126a6d581c7944f9a7c64'
 if (Test-Path -LiteralPath $dependencyPath) {
     $head = git -C $dependencyPath rev-parse HEAD
     if ($LASTEXITCODE -ne 0 -or $head -ne $commit) { throw 'Existing dependency differs; use a clean checkout at the pinned commit.' }
@@ -13,4 +13,4 @@ if (Test-Path -LiteralPath $dependencyPath) {
     git -C $dependencyPath checkout --detach $commit
     if ($LASTEXITCODE -ne 0) { throw 'Pinned HomeCore commit unavailable.' }
 }
-Write-Output "HomeCore 1.8.0 pinned at $commit"
+Write-Output "HomeCore 1.9.0 pinned at $commit"

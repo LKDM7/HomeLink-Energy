@@ -1,4 +1,4 @@
-# HomeLink Energy — développement 0.1.0
+# HomeLink Energy — développement 0.2.0
 
 Minecraft **1.21.1**, **NeoForge 21.1.251**, **Java 21**. Production solaire et éolienne renouvelable en **HE**, stockage et transfert par le réseau énergétique commun. Les appareils exposent leurs métriques et événements via l'API publique HomeCore.
 
@@ -22,9 +22,9 @@ Résultats et limites : [validation éolienne](docs/WIND_VALIDATION.md), [équil
 
 ## Installer
 
-Copier `homelink_energy-0.1.0.jar` et `homecore-1.7.0.jar` du dossier `build/release/` dans `mods/`, côté client et serveur. Installer NeoForge pour Minecraft 1.21.1 et utiliser Java 21. Ne pas installer deux versions de HomeCore.
+Copier `homelink_energy-0.2.0.jar` et `homecore-1.9.0.jar` du dossier `build/release/` dans `mods/`, côté client et serveur. Installer NeoForge pour Minecraft 1.21.1 et utiliser Java 21. Ne pas installer deux versions de HomeCore.
 
-HomeCore est **obligatoire** et construit séparément depuis le véritable dépôt, commit **`fecc72b70cbe31d8a4b667f70ff866e400925385`**, version 1.7.0, API publique 1.3.0. Il n'est pas inclus dans le JAR Energy. La copie voisine de HomeCore annonçait 1.8.0 avec des modifications non commitées : elle a été laissée intacte. Ce build ne cible pas ces ajouts expérimentaux.
+HomeCore est **obligatoire** et construit séparément depuis le véritable dépôt, au commit épinglé dans `gradle.properties` (`homecore_commit`), version 1.9.0, API publique 1.5.0. Il n'est pas inclus dans le JAR Energy. `scripts/bootstrap-homecore.ps1` prépare cette copie épinglée.
 
 ## Utiliser
 
@@ -75,6 +75,8 @@ Dans chaque réseau : sorties des producteurs vers consommateurs, surplus vers b
 Le bouton HomeLink permet de rattacher une machine à un HomeNetwork géré par le joueur. Le serveur vérifie le menu ouvert, sa position, sa dimension, sa distance et les permissions HomeCore. Les appareils exposent métriques HE et HE/t, état et événements de transition (production, obstruction, batterie basse/vide/pleine, connexion). Les alarmes ont une hystérésis et ne sont pas émises à chaque tick.
 
 **Intégration :** les machines de HomeLink Farm, Quarry, Storage et Dashboard consomment des HE à travers le contrat énergie de HomeCore 1.8.0 (`EnergyApi.BLOCK`) et déclarent HomeLink Energy comme dépendance obligatoire. Pas encore de widget Dashboard ni de règle Tasks spécifiques.
+
+**Rattachement depuis le Dashboard :** les panneaux, éoliennes et batteries implémentent `NetworkMember` (HomeCore 1.9.0). Le Dashboard peut donc les lister et les ajouter à un réseau ; le bloc garde le même rattachement qu'avec son propre bouton HomeLink. Un nom donné à l'enclume est conservé par le bloc, affiché dans son menu et dans le Dashboard, et rendu avec l'objet quand on le casse.
 
 ## Recettes exactes
 

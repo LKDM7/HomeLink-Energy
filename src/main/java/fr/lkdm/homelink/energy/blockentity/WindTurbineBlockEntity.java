@@ -150,7 +150,7 @@ public final class WindTurbineBlockEntity extends EnergyDeviceBlockEntity {
         if(obstruction!=null) { display.put(WindTurbineMenu.OB_X,obstruction.getX()); display.put(WindTurbineMenu.OB_Y,obstruction.getY()); display.put(WindTurbineMenu.OB_Z,obstruction.getZ()); }
     }
     @Override public EnergyDevice createDevice(Consumer<DeviceEvent> events) { return new WindDevice(this,events); }
-    @Override public Component getDisplayName() { return getBlockState().getBlock().getName(); }
+    @Override public Component getDisplayName() { return name(); }
     @Override public AbstractContainerMenu createMenu(int id,Inventory inv,Player player) { refreshDisplay(); return new WindTurbineMenu(id,inv,this,display); }
     @Override public void onLoad() { super.onLoad(); dirty=true; lastTick=Long.MIN_VALUE; invalidatePorts(); }
     private void release() {

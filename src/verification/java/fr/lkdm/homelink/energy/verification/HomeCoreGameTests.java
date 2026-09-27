@@ -136,6 +136,46 @@ public final class HomeCoreGameTests {
         }
     }
 
+    /** The Dashboard moves machines through HomeCore's NetworkMember contract; the block must record the same binding. */
+    @GameTest(template = "empty", batch = "homecore_member", timeoutTicks = 100)
+    public static void dashboardBindingKeepsTheBlockInStepAndShowsItsName(GameTestHelper helper) {
+        BatteryBlockEntity battery = place(helper, EnergyRegistries.BATTERY_1.get(), new BlockPos(0, 1, 0));
+        FakePlayer owner = player(helper, "energy_member_owner");
+        FakePlayer stranger = player(helper, "energy_member_stranger");
+        battery.setOwner(owner.getUUID());
+        var networks = DashboardAPI.networks(helper.getLevel().getServer());
+        UUID first = networks.createNetwork("Base", owner.getUUID()).id();
+        UUID second = networks.createNetwork("Atelier", owner.getUUID()).id();
+        helper.runAfterDelay(45, () -> {
+            try {
+                DashboardDevice device = device(helper, battery.deviceId());
+                check(helper, device instanceof fr.lkdm.homecore.api.network.NetworkMember, "Energy devices must implement NetworkMember");
+                check(helper, DashboardAPI.bindDevice(stranger, device, Optional.of(first)) == fr.lkdm.homecore.api.network.NetworkMember.BindResult.DENIED,
+                        "A stranger moved someone else's battery");
+                check(helper, DashboardAPI.bindDevice(owner, device, Optional.of(first)) == fr.lkdm.homecore.api.network.NetworkMember.BindResult.BOUND,
+                        "The owner could not bind from the dashboard");
+                check(helper, battery.homeNetwork().equals(Optional.of(first)) && battery.homeNetworkName().equals("Base"), "Block binding not recorded");
+                check(helper, DashboardAPI.bindDevice(owner, device, Optional.of(second)) == fr.lkdm.homecore.api.network.NetworkMember.BindResult.BOUND
+                        && !networks.getDevices(first).contains(battery.deviceId()) && networks.getDevices(second).contains(battery.deviceId())
+                        && battery.homeNetwork().equals(Optional.of(second)), "Moving must leave the previous network");
+                check(helper, device.displayName().getString().equals(battery.getBlockState().getBlock().getName().getString()), "Default name");
+                var registries = helper.getLevel().registryAccess();
+                var tag = battery.saveWithoutMetadata(registries);
+                tag.putString("CustomName", "\"Batterie nord\"");
+                battery.loadWithComponents(tag, registries);
+                check(helper, device.displayName().getString().equals("Batterie nord") && battery.getDisplayName().getString().equals("Batterie nord"),
+                        "An anvil name must reach the menu and HomeCore");
+                var copy = new BatteryBlockEntity(battery.getBlockPos(), battery.getBlockState());
+                copy.loadWithComponents(battery.saveWithoutMetadata(registries), registries);
+                check(helper, copy.name().getString().equals("Batterie nord"), "The custom name must survive a reload");
+                helper.succeed();
+            } finally {
+                networks.deleteNetwork(first);
+                networks.deleteNetwork(second);
+            }
+        });
+    }
+
     @GameTest(template = "empty", batch = "homecore_sky", timeoutTicks = 200)
     public static void skyBlockedEventOnTransitionOnly(GameTestHelper helper) {
         world(helper, 6_000, false, false);

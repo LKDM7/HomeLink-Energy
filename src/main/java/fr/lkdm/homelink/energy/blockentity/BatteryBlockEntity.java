@@ -140,7 +140,7 @@ public final class BatteryBlockEntity extends EnergyDeviceBlockEntity {
     public EnergyDevice createDevice(Consumer<DeviceEvent> events) { return new BatteryDevice(this, events); }
 
     @Override
-    public Component getDisplayName() { return getBlockState().getBlock().getName(); }
+    public Component getDisplayName() { return name(); }
 
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
