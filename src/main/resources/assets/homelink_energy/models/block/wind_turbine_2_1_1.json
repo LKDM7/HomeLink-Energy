@@ -1,0 +1,14 @@
+{
+  "ambientocclusion": false,
+  "textures": {
+    "paint": "homelink_energy:block/wind_painted_steel",
+    "dark": "homelink_energy:block/wind_graphite",
+    "copper": "homelink_energy:block/wind_copper",
+    "gold": "homelink_energy:block/wind_brass",
+    "blade": "homelink_energy:block/wind_blade",
+    "vent": "homelink_energy:block/wind_vent",
+    "particle": "homelink_energy:block/wind_painted_steel",
+    "label": "homelink_energy:block/wind_label_2"
+  },
+  "elements": []
+}

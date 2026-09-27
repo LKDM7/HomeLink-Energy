@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": ["OMO", "CBC", "ORO"],
+  "key": {
+    "O": { "item": "minecraft:gold_ingot" },
+    "M": { "item": "homecore:homelink_microprocessor" },
+    "C": { "item": "minecraft:copper_ingot" },
+    "B": { "item": "homelink_energy:battery_1" },
+    "R": { "item": "minecraft:redstone_block" }
+  },
+  "result": { "id": "homelink_energy:battery_2", "count": 1 }
+}

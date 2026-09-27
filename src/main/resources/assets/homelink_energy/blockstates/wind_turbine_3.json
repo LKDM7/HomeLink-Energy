@@ -1,0 +1,68 @@
+{
+  "variants": {
+    "facing=north,column=0,row=0": {
+      "model": "homelink_energy:block/wind_turbine_3_0_0",
+      "y": 0
+    },
+    "facing=east,column=0,row=0": {
+      "model": "homelink_energy:block/wind_turbine_3_0_0",
+      "y": 90
+    },
+    "facing=south,column=0,row=0": {
+      "model": "homelink_energy:block/wind_turbine_3_0_0",
+      "y": 180
+    },
+    "facing=west,column=0,row=0": {
+      "model": "homelink_energy:block/wind_turbine_3_0_0",
+      "y": 270
+    },
+    "facing=north,column=1,row=0": {
+      "model": "homelink_energy:block/wind_turbine_3_1_0",
+      "y": 0
+    },
+    "facing=east,column=1,row=0": {
+      "model": "homelink_energy:block/wind_turbine_3_1_0",
+      "y": 90
+    },
+    "facing=south,column=1,row=0": {
+      "model": "homelink_energy:block/wind_turbine_3_1_0",
+      "y": 180
+    },
+    "facing=west,column=1,row=0": {
+      "model": "homelink_energy:block/wind_turbine_3_1_0",
+      "y": 270
+    },
+    "facing=north,column=0,row=1": {
+      "model": "homelink_energy:block/wind_turbine_3_0_1",
+      "y": 0
+    },
+    "facing=east,column=0,row=1": {
+      "model": "homelink_energy:block/wind_turbine_3_0_1",
+      "y": 90
+    },
+    "facing=south,column=0,row=1": {
+      "model": "homelink_energy:block/wind_turbine_3_0_1",
+      "y": 180
+    },
+    "facing=west,column=0,row=1": {
+      "model": "homelink_energy:block/wind_turbine_3_0_1",
+      "y": 270
+    },
+    "facing=north,column=1,row=1": {
+      "model": "homelink_energy:block/wind_turbine_3_1_1",
+      "y": 0
+    },
+    "facing=east,column=1,row=1": {
+      "model": "homelink_energy:block/wind_turbine_3_1_1",
+      "y": 90
+    },
+    "facing=south,column=1,row=1": {
+      "model": "homelink_energy:block/wind_turbine_3_1_1",
+      "y": 180
+    },
+    "facing=west,column=1,row=1": {
+      "model": "homelink_energy:block/wind_turbine_3_1_1",
+      "y": 270
+    }
+  }
+}

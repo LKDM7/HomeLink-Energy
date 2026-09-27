@@ -1,0 +1,8 @@
+{
+  "parent": "homelink_energy:block/solar_panel_base",
+  "textures": {
+    "top": "homelink_energy:block/solar_panel_2_top",
+    "side": "homelink_energy:block/solar_panel_side",
+    "bottom": "homelink_energy:block/solar_panel_bottom"
+  }
+}

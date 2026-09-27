@@ -1,0 +1,13 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="All Rights Reserved"
+[[mods]]
+modId="energy_validation"
+version="1.0.0"
+displayName="HomeLink Energy Development Verification"
+[[dependencies.energy_validation]]
+modId="homelink_energy"
+type="required"
+versionRange="[0,)"
+ordering="AFTER"
+side="BOTH"

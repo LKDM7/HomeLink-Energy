@@ -1,0 +1,22 @@
+{
+    "collectedAt":  "2026-09-26T22:41:41.5955147Z",
+    "change":  "Distinct battery silhouettes by tier; exterior meshes without overlapping coplanar faces",
+    "unitTests":  {
+                      "errors":  0,
+                      "tests":  43,
+                      "failures":  0
+                  },
+    "gameTests":  42,
+    "clientLanguages":  [
+                            "fr_fr"
+                        ],
+    "load":  "[27sept.2026 00:15:43.679] [Server thread/INFO] [fr.lkdm.homelink.energy.HomeLinkEnergy/]: ENERGY_LOAD_OK panels=100 batteries=100 frozenNoon=true clear=true elapsedMs=559.2125 panelTicks=60000 panelCpuMs=251.5271 meanMicrosecondsPerPanelTick=4.192118333333333 batteryHE=157000",
+    "homecoreCommit":  "fecc72b70cbe31d8a4b667f70ff866e400925385",
+    "jarSha256":  "8c352d547f2e3ac68ddac708cca06a525c4549f8d5cb5d228f2464077aaf1ba8",
+    "homecoreJarSha256":  "5f8fd345ff0cd9215fa93abaad71c3d0f8879b3c2e66aa4c231b72fc226885fa",
+    "status":  "43 unit tests and French client validation passed; 42 GameTests and English client checks from preceding gameplay revision",
+    "limitations":  [
+                        "No manual remote multiplayer session",
+                        "Prototype solar arrays II/III and suspended cables need replacing"
+                    ]
+}

@@ -1,0 +1,4 @@
+Logical benchmark, JVM warmup included. 500 consumers; shared WindState. Not client FPS.
+21.0.11 / Windows 11 / CPUs=16
+turbines=100 ticks=10000 totalMs=162.275 msPerTick=0.016227 allocatedBytes=19830640
+turbines=500 ticks=10000 totalMs=513.789 msPerTick=0.051379 allocatedBytes=95014640

@@ -1,0 +1,32 @@
+pluginManagement {
+    repositories {
+        mavenLocal()
+        gradlePluginPortal()
+        maven { url = 'https://maven.neoforged.net/releases' }
+    }
+}
+
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.8.0'
+}
+
+rootProject.name = 'HomeLink-Energy'
+def homecoreDir = file(providers.gradleProperty('homecore_dir').getOrElse('.dependencies/HomeCore'))
+if (!new File(homecoreDir, 'settings.gradle').isFile()) {
+    throw new GradleException('Run scripts/bootstrap-homecore.ps1 or set -Phomecore_dir=<clean pinned checkout>.')
+}
+def homecoreProperties = new Properties()
+new File(homecoreDir, 'gradle.properties').withInputStream { homecoreProperties.load(it) }
+def expectedHomecore = providers.gradleProperty('homecore_version').get()
+if (homecoreProperties.getProperty('mod_version') != expectedHomecore || homecoreProperties.getProperty('minecraft_version') != '1.21.1') {
+    throw new GradleException("HomeCore checkout must target Minecraft 1.21.1 and version ${expectedHomecore}.")
+}
+def pinned = providers.gradleProperty('homecore_commit').get()
+def actual = providers.exec { commandLine 'git', '-C', homecoreDir.absolutePath, 'rev-parse', 'HEAD' }.standardOutput.asText.get().trim()
+def dirty = providers.exec { commandLine 'git', '-C', homecoreDir.absolutePath, 'status', '--porcelain', '--untracked-files=all' }.standardOutput.asText.get().trim()
+if (actual != pinned || !dirty.isEmpty()) throw new GradleException("HomeCore must be clean at commit " + pinned)
+includeBuild(homecoreDir) {
+    dependencySubstitution {
+        substitute module('fr.lkdm.homecore:homecore') using project(':')
+    }
+}

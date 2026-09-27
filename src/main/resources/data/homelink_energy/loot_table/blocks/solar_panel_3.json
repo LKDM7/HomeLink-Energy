@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "bonus_rolls": 0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "homelink_energy:solar_panel_3"
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        },
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "homelink_energy:solar_panel_3",
+          "properties": {
+            "column": "0",
+            "row": "0"
+          }
+        }
+      ]
+    }
+  ],
+  "random_sequence": "homelink_energy:blocks/solar_panel_3"
+}

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": ["DMD", "MPM", "DKD"],
+  "key": {
+    "D": { "item": "minecraft:diamond" },
+    "M": { "item": "homecore:homelink_microprocessor" },
+    "P": { "item": "homelink_energy:solar_panel_2" },
+    "K": { "item": "homecore:homelink_control_module" }
+  },
+  "result": { "id": "homelink_energy:solar_panel_3", "count": 1 }
+}

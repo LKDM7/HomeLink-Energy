@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": ["GGG", "QRQ", "CBC"],
+  "key": {
+    "G": { "item": "minecraft:glass" },
+    "Q": { "item": "minecraft:quartz" },
+    "R": { "item": "minecraft:redstone" },
+    "C": { "item": "minecraft:copper_ingot" },
+    "B": { "item": "homecore:homelink_circuit_board" }
+  },
+  "result": { "id": "homelink_energy:solar_panel_1", "count": 1 }
+}

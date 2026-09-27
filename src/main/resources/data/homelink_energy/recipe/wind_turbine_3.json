@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "DMD",
+    "KTO",
+    "GCG"
+  ],
+  "key": {
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "M": {
+      "item": "homecore:homelink_microprocessor"
+    },
+    "K": {
+      "item": "homecore:homelink_control_module"
+    },
+    "T": {
+      "item": "homelink_energy:wind_turbine_2"
+    },
+    "O": {
+      "item": "homecore:homelink_communication_module"
+    },
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    }
+  },
+  "result": {
+    "id": "homelink_energy:wind_turbine_3",
+    "count": 1
+  }
+}

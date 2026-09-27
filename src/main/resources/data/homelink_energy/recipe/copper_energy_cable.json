@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": ["CCC", "WRW", "CCC"],
+  "key": {
+    "C": { "item": "minecraft:copper_ingot" },
+    "W": { "tag": "minecraft:wool" },
+    "R": { "item": "minecraft:redstone" }
+  },
+  "result": { "id": "homelink_energy:copper_energy_cable", "count": 8 }
+}

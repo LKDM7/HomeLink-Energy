@@ -1,0 +1,11 @@
+S = 7639.437225
+tier  perCycle  weather  expected  produced  peakHE/t
+I         2000  clear      2000.0      2000  0.2618
+I         2000  rain        800.0       800  0.1047
+I         2000  thunder     300.0       300  0.0393
+II        8000  clear      8000.0      8000  1.0472
+II        8000  rain       3200.0      3200  0.4189
+II        8000  thunder    1200.0      1200  0.1571
+III      20000  clear     20000.0     20000  2.6180
+III      20000  rain       8000.0      8000  1.0472
+III      20000  thunder    3000.0      3000  0.3927

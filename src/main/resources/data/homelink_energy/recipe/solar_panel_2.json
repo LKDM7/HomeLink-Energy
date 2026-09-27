@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": ["OMO", "CPC", "OXO"],
+  "key": {
+    "O": { "item": "minecraft:gold_ingot" },
+    "M": { "item": "homecore:homelink_microprocessor" },
+    "C": { "item": "minecraft:copper_ingot" },
+    "P": { "item": "homelink_energy:solar_panel_1" },
+    "X": { "item": "homecore:homelink_communication_module" }
+  },
+  "result": { "id": "homelink_energy:solar_panel_2", "count": 1 }
+}

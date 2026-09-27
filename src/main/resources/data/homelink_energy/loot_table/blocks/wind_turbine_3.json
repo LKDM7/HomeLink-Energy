@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "homelink_energy:wind_turbine_3"
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        },
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "homelink_energy:wind_turbine_3",
+          "properties": {
+            "column": "0",
+            "row": "0"
+          }
+        }
+      ]
+    }
+  ]
+}

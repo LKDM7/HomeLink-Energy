@@ -1,0 +1,14 @@
+{
+    "values":  [
+                   "homelink_energy:solar_panel_1",
+                   "homelink_energy:solar_panel_2",
+                   "homelink_energy:solar_panel_3",
+                   "homelink_energy:battery_1",
+                   "homelink_energy:battery_2",
+                   "homelink_energy:battery_3",
+                   "homelink_energy:copper_energy_cable",
+                   "homelink_energy:wind_turbine_1",
+                   "homelink_energy:wind_turbine_2",
+                   "homelink_energy:wind_turbine_3"
+               ]
+}

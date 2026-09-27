@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": ["ICI", "RBR", "ICI"],
+  "key": {
+    "I": { "item": "minecraft:iron_ingot" },
+    "C": { "item": "minecraft:copper_ingot" },
+    "R": { "item": "minecraft:redstone" },
+    "B": { "item": "homecore:homelink_circuit_board" }
+  },
+  "result": { "id": "homelink_energy:battery_1", "count": 1 }
+}

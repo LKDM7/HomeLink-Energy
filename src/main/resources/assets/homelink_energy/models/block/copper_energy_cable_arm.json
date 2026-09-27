@@ -1,0 +1,127 @@
+{
+  "textures": {
+    "particle": "homelink_energy:block/copper_energy_cable",
+    "cable": "homelink_energy:block/copper_energy_cable",
+    "core": "homelink_energy:block/copper_energy_cable_core"
+  },
+  "elements": [
+    {
+      "from": [
+        5,
+        5,
+        0
+      ],
+      "to": [
+        11,
+        11,
+        0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            5,
+            5,
+            11,
+            11
+          ],
+          "texture": "#core",
+          "cullface": "north"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        5,
+        0
+      ],
+      "to": [
+        5,
+        11,
+        5
+      ],
+      "faces": {
+        "west": {
+          "uv": [
+            0,
+            5,
+            5,
+            11
+          ],
+          "texture": "#cable"
+        }
+      }
+    },
+    {
+      "from": [
+        11,
+        5,
+        0
+      ],
+      "to": [
+        11,
+        11,
+        5
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            0,
+            5,
+            5,
+            11
+          ],
+          "texture": "#cable"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        11,
+        0
+      ],
+      "to": [
+        11,
+        11,
+        5
+      ],
+      "faces": {
+        "up": {
+          "uv": [
+            5,
+            0,
+            11,
+            5
+          ],
+          "texture": "#cable",
+          "rotation": 90
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        5,
+        0
+      ],
+      "to": [
+        11,
+        5,
+        5
+      ],
+      "faces": {
+        "down": {
+          "uv": [
+            5,
+            0,
+            11,
+            5
+          ],
+          "texture": "#cable",
+          "rotation": 90
+        }
+      }
+    }
+  ]
+}

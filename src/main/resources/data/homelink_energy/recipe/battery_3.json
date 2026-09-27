@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "pattern": ["DOD", "MBM", "CKC"],
+  "key": {
+    "D": { "item": "minecraft:diamond" },
+    "O": { "item": "minecraft:gold_block" },
+    "M": { "item": "homecore:homelink_microprocessor" },
+    "B": { "item": "homelink_energy:battery_2" },
+    "C": { "item": "minecraft:copper_block" },
+    "K": { "item": "homecore:homelink_control_module" }
+  },
+  "result": { "id": "homelink_energy:battery_3", "count": 1 }
+}

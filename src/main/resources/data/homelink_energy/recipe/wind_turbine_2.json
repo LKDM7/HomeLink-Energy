@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "GMG",
+    "CTC",
+    "GKG"
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "M": {
+      "item": "homecore:homelink_microprocessor"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "T": {
+      "item": "homelink_energy:wind_turbine_1"
+    },
+    "K": {
+      "item": "homecore:homelink_control_module"
+    }
+  },
+  "result": {
+    "id": "homelink_energy:wind_turbine_2",
+    "count": 1
+  }
+}

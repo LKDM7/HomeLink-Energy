@@ -1,0 +1,52 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "down": "true"
+      },
+      "apply": {
+        "model": "homelink_energy:block/cable_surface_down"
+      }
+    },
+    {
+      "when": {
+        "up": "true"
+      },
+      "apply": {
+        "model": "homelink_energy:block/cable_surface_up"
+      }
+    },
+    {
+      "when": {
+        "north": "true"
+      },
+      "apply": {
+        "model": "homelink_energy:block/cable_surface_north"
+      }
+    },
+    {
+      "when": {
+        "south": "true"
+      },
+      "apply": {
+        "model": "homelink_energy:block/cable_surface_south"
+      }
+    },
+    {
+      "when": {
+        "west": "true"
+      },
+      "apply": {
+        "model": "homelink_energy:block/cable_surface_west"
+      }
+    },
+    {
+      "when": {
+        "east": "true"
+      },
+      "apply": {
+        "model": "homelink_energy:block/cable_surface_east"
+      }
+    }
+  ]
+}

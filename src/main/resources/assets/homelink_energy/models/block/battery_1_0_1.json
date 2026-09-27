@@ -1,0 +1,13 @@
+{
+  "textures": {
+    "metal": "homelink_energy:block/solar_panel_side",
+    "dark": "homelink_energy:block/solar_panel_bottom",
+    "frame": "homelink_energy:block/battery_top",
+    "copper": "homelink_energy:block/copper_energy_cable",
+    "cell": "homelink_energy:block/solar_panel_1_top",
+    "body": "homelink_energy:block/battery_1_side",
+    "indicator": "homelink_energy:block/battery_1_side",
+    "particle": "homelink_energy:block/battery_1_side"
+  },
+  "elements": []
+}
