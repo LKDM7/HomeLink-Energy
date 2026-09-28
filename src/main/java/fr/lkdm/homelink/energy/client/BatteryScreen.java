@@ -13,14 +13,6 @@ public final class BatteryScreen extends EnergyScreen<BatteryMenu> {
     }
 
     @Override
-    protected int headerColor() {
-        if(menu.value(BatteryMenu.COMPLETE)==0) return WARN;
-        long stored = menu.value(BatteryMenu.STORED) & 0xFFFFFFFFL;
-        long capacity = menu.value(BatteryMenu.CAPACITY) & 0xFFFFFFFFL;
-        return capacity <= 0 || stored <= capacity * 0.15 ? BAD : stored < capacity * 0.5 ? WARN : GOOD;
-    }
-
-    @Override
     protected void renderLines(GuiGraphics graphics) {
         row(graphics,Component.translatable("gui.homelink_energy.status"),Component.translatable(menu.value(BatteryMenu.COMPLETE)==1
                 ? "status.homelink_energy.battery.ready" : "status.homelink_energy.battery.incomplete_base"),menu.value(BatteryMenu.COMPLETE)==1?GOOD:WARN);

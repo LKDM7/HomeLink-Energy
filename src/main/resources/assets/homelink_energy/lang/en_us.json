@@ -44,6 +44,8 @@
   "message.homelink_energy.network_too_large": "Energy network too large (over %s nodes): it stops moving energy",
   "gui.homelink_energy.home_network": "HomeLink: %s",
   "gui.homelink_energy.home_network.none": "no network",
+  "gui.homelink_energy.linked": "Linked",
+  "gui.homelink_energy.not_linked": "Not linked",
   "message.homelink_energy.network.bound": "Joined HomeNetwork %s",
   "message.homelink_energy.network.unbound": "Left its HomeNetwork",
   "message.homelink_energy.network.unchanged": "Network unchanged",

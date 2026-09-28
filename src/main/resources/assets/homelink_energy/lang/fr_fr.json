@@ -44,6 +44,8 @@
   "message.homelink_energy.network_too_large": "Réseau énergétique trop grand (plus de %s nœuds) : il ne transporte plus d'énergie",
   "gui.homelink_energy.home_network": "HomeLink : %s",
   "gui.homelink_energy.home_network.none": "aucun réseau",
+  "gui.homelink_energy.linked": "Relié",
+  "gui.homelink_energy.not_linked": "Non relié",
   "message.homelink_energy.network.bound": "Ajouté au HomeNetwork %s",
   "message.homelink_energy.network.unbound": "Retiré de son HomeNetwork",
   "message.homelink_energy.network.unchanged": "Réseau inchangé",

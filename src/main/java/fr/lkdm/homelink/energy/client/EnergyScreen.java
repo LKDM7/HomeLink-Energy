@@ -73,14 +73,18 @@ public abstract class EnergyScreen<M extends EnergyMenu> extends AbstractContain
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(font, title, 14, 8, TEXT, false);
-        EnergyTheme.statusLight(graphics, imageWidth - 22, 8, headerColor());
+        // Header status: whether the block is linked to a HomeNetwork, as on the HomeLink Farm screens.
+        boolean linked = !EnergyClientData.choices(menu.pos()).current().isEmpty();
+        String status = font.plainSubstrByWidth(Component.translatable(linked
+                ? "gui.homelink_energy.linked" : "gui.homelink_energy.not_linked").getString(), 90);
+        int statusX = imageWidth - 16 - font.width(status);
+        EnergyTheme.statusLight(graphics, statusX - 12, 8, linked ? GOOD : BAD);
+        graphics.drawString(font, status, statusX, 8, LABEL, false);
+        graphics.drawString(font, font.plainSubstrByWidth(title.getString(), statusX - 30), 14, 8, TEXT, false);
         graphics.drawString(font, "HOMELINK / ENERGY", 14, 31, COPPER, false);
         line = 51;
         renderLines(graphics);
     }
-
-    protected int headerColor() { return GOOD; }
 
     /** Draws the body lines, in order, with {@link #row} and {@link #bar}. */
     protected abstract void renderLines(GuiGraphics graphics);

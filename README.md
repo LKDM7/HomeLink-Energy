@@ -1,4 +1,4 @@
-# HomeLink Energy — développement 0.2.0
+# HomeLink Energy — développement 0.2.1
 
 Minecraft **1.21.1**, **NeoForge 21.1.251**, **Java 21**. Production solaire et éolienne renouvelable en **HE**, stockage et transfert par le réseau énergétique commun. Les appareils exposent leurs métriques et événements via l'API publique HomeCore.
 
@@ -22,13 +22,13 @@ Résultats et limites : [validation éolienne](docs/WIND_VALIDATION.md), [équil
 
 ## Installer
 
-Copier `homelink_energy-0.2.0.jar` et `homecore-1.9.0.jar` du dossier `build/release/` dans `mods/`, côté client et serveur. Installer NeoForge pour Minecraft 1.21.1 et utiliser Java 21. Ne pas installer deux versions de HomeCore.
+Copier `homelink_energy-0.2.1.jar` et `homecore-1.9.0.jar` du dossier `build/release/` dans `mods/`, côté client et serveur. Installer NeoForge pour Minecraft 1.21.1 et utiliser Java 21. Ne pas installer deux versions de HomeCore.
 
 HomeCore est **obligatoire** et construit séparément depuis le véritable dépôt, au commit épinglé dans `gradle.properties` (`homecore_commit`), version 1.9.0, API publique 1.5.0. Il n'est pas inclus dans le JAR Energy. `scripts/bootstrap-homecore.ps1` prépare cette copie épinglée.
 
 ## Utiliser
 
-Poser une batterie, puis un panneau directement dessus, dans l'Overworld. Le panneau charge automatiquement la batterie par le bas. Clic droit : état, débit potentiel en HE/t, météo, exposition, tampon ou charge de la batterie. Un panneau I produit lentement : ses fractions s'additionnent avant de former un HE entier.
+Poser une batterie, puis un panneau directement dessus, dans l'Overworld. Le panneau charge automatiquement la batterie par le bas. Clic droit : état, débit potentiel en HE/t, météo, exposition, tampon ou charge de la batterie. Un panneau I produit lentement : ses fractions s'additionnent avant de former un HE entier. Le voyant en haut à droite des interfaces indique la liaison au réseau HomeLink : vert « Relié », rouge « Non relié » ; la charge, la production et le raccordement par câbles restent dans les lignes de l’interface.
 
 Les panneaux occupent désormais **1×1 bloc (I), 2×1 blocs (II) et 2×2 blocs (III)** au sol. Leur largeur suit l'orientation du joueur au placement. Toute l'emprise doit être libre ; un obstacle annule la pose. Les parties d'un ensemble partagent un seul contrôleur et une seule production : clic droit sur n'importe quelle partie pour ouvrir son interface, cassage d'une partie pour démonter l'ensemble. Un seul panneau est récupérable avec l'outil adapté. Toutes les cellules doivent voir le ciel. La sortie automatique vers une batterie se trouve sous la case d'origine ; les sorties par câble sont accessibles sur les côtés et le dessous des autres cases.
 

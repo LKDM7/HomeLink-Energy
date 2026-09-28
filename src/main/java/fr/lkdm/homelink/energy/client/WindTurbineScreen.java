@@ -30,9 +30,9 @@ public final class WindTurbineScreen extends EnergyScreen<WindTurbineMenu> {
     private static Component tr(String key) { return Component.translatable("gui.homelink_energy."+key); }
     private static Component literal(String value) { return Component.literal(value); }
     private WindStatus status() { return WindStatus.values()[Math.clamp(menu.value(WindTurbineMenu.STATUS),0,WindStatus.values().length-1)]; }
-    @Override protected int headerColor() { return status()==WindStatus.GENERATING?GOOD:status()==WindStatus.NO_WIND?LABEL:WARN; }
+    private int statusColor() { return status()==WindStatus.GENERATING?GOOD:status()==WindStatus.NO_WIND?LABEL:WARN; }
     @Override protected void renderLines(GuiGraphics g) {
-        row(g,tr("status"),Component.translatable("status.homelink_energy.wind."+status().name().toLowerCase(Locale.ROOT)),headerColor());
+        row(g,tr("status"),Component.translatable("status.homelink_energy.wind."+status().name().toLowerCase(Locale.ROOT)),statusColor());
         row(g,tr("wind"),literal(Formats.rate(menu.value(WindTurbineMenu.WIND)/10.)+" %"),TEXT);
         var trend=WindState.Trend.values()[Math.clamp(menu.value(WindTurbineMenu.TREND),0,2)];
         row(g,tr("trend"),tr("wind_trend."+trend.name().toLowerCase(Locale.ROOT)),TEXT);

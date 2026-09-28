@@ -15,14 +15,6 @@ public final class SolarPanelScreen extends EnergyScreen<SolarPanelMenu> {
     }
 
     @Override
-    protected int headerColor() {
-        int ordinal = menu.value(SolarPanelMenu.STATUS);
-        SolarStatus[] states = SolarStatus.values();
-        if (ordinal < 0 || ordinal >= states.length) return LABEL;
-        return switch (states[ordinal]) { case GENERATING -> GOOD; case NIGHT, BUFFER_FULL -> WARN; default -> BAD; };
-    }
-
-    @Override
     protected void renderLines(GuiGraphics graphics) {
         SolarStatus[] states = SolarStatus.values();
         int ordinal = menu.value(SolarPanelMenu.STATUS);
