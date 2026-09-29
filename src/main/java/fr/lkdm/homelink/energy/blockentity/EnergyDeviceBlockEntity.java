@@ -35,6 +35,8 @@ public abstract class EnergyDeviceBlockEntity extends BlockEntity implements Men
     private String homeNetworkName = "";
     /** Name given with an anvil; travels with the item through the custom_name component. */
     @Nullable private Component customName;
+    /** Only generators honour it; a block starts switched on. */
+    private boolean switchedOff;
     @Nullable private EnergyDevice device;
     private int deviceRetry;
 
@@ -121,6 +123,21 @@ public abstract class EnergyDeviceBlockEntity extends BlockEntity implements Men
     /** @return the anvil name when set, otherwise the block name */
     public Component name() { return customName != null ? customName : getBlockState().getBlock().getName(); }
 
+    /** @param name name chosen from a dashboard; empty restores the block name */
+    public void rename(String name) {
+        customName = name.isEmpty() ? null : Component.literal(name);
+        setChanged();
+    }
+
+    /** @return false when a player switched the block off from a dashboard */
+    public boolean powered() { return !switchedOff; }
+
+    /** @param powered state chosen from a dashboard */
+    public void setPowered(boolean powered) {
+        switchedOff = !powered;
+        setChanged();
+    }
+
     @Override
     protected void applyImplicitComponents(BlockEntity.DataComponentInput input) {
         super.applyImplicitComponents(input);
@@ -154,6 +171,7 @@ public abstract class EnergyDeviceBlockEntity extends BlockEntity implements Men
             tag.putString("home_network_name", homeNetworkName);
         }
         if (customName != null) tag.putString("CustomName", Component.Serializer.toJson(customName, registries));
+        if (switchedOff) tag.putBoolean("switched_off", true);
     }
 
     @Override
@@ -164,5 +182,6 @@ public abstract class EnergyDeviceBlockEntity extends BlockEntity implements Men
         homeNetwork = tag.hasUUID("home_network") ? tag.getUUID("home_network") : null;
         homeNetworkName = homeNetwork == null ? "" : tag.getString("home_network_name");
         customName = tag.contains("CustomName", CompoundTag.TAG_STRING) ? parseCustomNameSafe(tag.getString("CustomName"), registries) : null;
+        switchedOff = tag.getBoolean("switched_off");
     }
 }

@@ -79,6 +79,15 @@ class SolarModelTest {
         assertEquals(0, night.generator().fraction() + blocked.generator().fraction() + nether.generator().fraction());
     }
 
+    @Test void switchedOffPanelProducesNothingUntilSwitchedOn() {
+        var panel = panel();
+        for (int tick = 0; tick < 6_000; tick++) panel.tick(20_000, true, true, tick, 1.0, false);
+        assertEquals(0, panel.generated());
+        assertEquals(SolarStatus.SWITCHED_OFF, panel.status());
+        panel.tick(20_000, true, true, 6_000, 1.0, true);
+        assertEquals(SolarStatus.GENERATING, panel.status());
+    }
+
     @Test void smallPanelAccumulatesFractions() {
         var panel = panel();
         double noonRate = SolarGenerator.potential(2_000, 6_000, 1.0);

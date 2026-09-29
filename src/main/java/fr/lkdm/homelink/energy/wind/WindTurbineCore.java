@@ -20,11 +20,16 @@ public final class WindTurbineCore {
     }
     public long tick(long nominal, long simulationTick, double wind, double weather, int hubY,
             boolean dimension, boolean rotor, boolean sky, boolean baseComplete, WindParameters p) {
+        return tick(nominal, simulationTick, wind, weather, hubY, dimension, rotor, sky, baseComplete, true, p);
+    }
+    /** A turbine switched off by a player produces nothing; the wind hysteresis keeps following the weather. */
+    public long tick(long nominal, long simulationTick, double wind, double weather, int hubY,
+            boolean dimension, boolean rotor, boolean sky, boolean baseComplete, boolean powered, WindParameters p) {
         long index = Math.floorDiv(simulationTick, PERIOD);
         if (period != index) { period = index; generatedPeriod = 0; }
         if (running ? wind <= p.cutInStop() : wind >= p.cutInStart()) running = !running;
         efficiency = p.efficiency(wind, weather, hubY);
-        status = nominal <= 0 ? WindStatus.DISABLED : !dimension ? WindStatus.UNSUPPORTED_DIMENSION
+        status = !powered ? WindStatus.SWITCHED_OFF : nominal <= 0 ? WindStatus.DISABLED : !dimension ? WindStatus.UNSUPPORTED_DIMENSION
                 : !baseComplete ? WindStatus.INCOMPLETE_BASE : !rotor ? WindStatus.ROTOR_OBSTRUCTED : !sky ? WindStatus.SKY_BLOCKED : !running ? WindStatus.NO_WIND : WindStatus.GENERATING;
         double potential = status == WindStatus.GENERATING ? nominal / (double) PERIOD * efficiency : 0;
         rate = Math.min(potential, buffer.space());

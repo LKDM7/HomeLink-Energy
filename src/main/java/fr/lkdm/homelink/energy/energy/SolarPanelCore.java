@@ -37,13 +37,29 @@ public final class SolarPanelCore {
      * @return whole HE accepted into the buffer this tick
      */
     public long tick(long energyPerCycle, boolean supportedDimension, boolean skyVisible, long dayTime, double weatherEfficiency) {
+        return tick(energyPerCycle, supportedDimension, skyVisible, dayTime, weatherEfficiency, true);
+    }
+
+    /**
+     * Runs one executed tick of production; a switched-off panel produces nothing.
+     *
+     * @param energyPerCycle HE produced over a full clear cycle
+     * @param supportedDimension whether the panel is in the Overworld
+     * @param skyVisible whether nothing is above the panel
+     * @param dayTime world day time
+     * @param weatherEfficiency efficiency of the current weather, from 0 to 1
+     * @param powered whether a player left the panel switched on
+     * @return whole HE accepted into the buffer this tick
+     */
+    public long tick(long energyPerCycle, boolean supportedDimension, boolean skyVisible, long dayTime, double weatherEfficiency,
+            boolean powered) {
         long currentDay = Math.floorDiv(dayTime, SolarCurve.CYCLE_TICKS);
         if (currentDay != day) {
             day = currentDay;
             generatedToday = 0;
         }
         efficiency = weatherEfficiency;
-        status = SolarGenerator.status(energyPerCycle, supportedDimension, skyVisible, dayTime);
+        status = powered ? SolarGenerator.status(energyPerCycle, supportedDimension, skyVisible, dayTime) : SolarStatus.SWITCHED_OFF;
         potentialRate = status.producing() ? SolarGenerator.potential(energyPerCycle, dayTime, weatherEfficiency) : 0;
         long whole = generator.produce(potentialRate);
         long accepted = buffer.receive(whole, false);

@@ -97,7 +97,7 @@ public final class WindTurbineBlockEntity extends EnergyDeviceBlockEntity {
         wind=data.state().currentStrength(); trend=data.state().trend();
         weather=Weather.of(server.isRaining(),server.isThundering()); weatherMultiplier=p.weather(weather); altitudeMultiplier=p.altitude(hubY());
         core.buffer().setCapacity(WindConfig.buffer());
-        core.tick(tier().nominal(),data.state().ticks(),wind,weatherMultiplier,hubY(),server.dimension()==Level.OVERWORLD,rotorClear,skyVisible,baseComplete(),p);
+        core.tick(tier().nominal(),data.state().ticks(),wind,weatherMultiplier,hubY(),server.dimension()==Level.OVERWORLD,rotorClear,skyVisible,baseComplete(),powered(),p);
         if(core.buffer().stored()>0) {
             if(below==null) below=BlockCapabilityCache.create(HeCapabilities.PORT,server,worldPosition.below(),Direction.UP,()->available(),()->{});
             var target=below.getCapability(); if(target!=null) EnergyTransfer.move(port,target,Long.MAX_VALUE);

@@ -1,4 +1,4 @@
-# HomeLink Energy — développement 0.2.2
+# HomeLink Energy — développement 0.3.0
 
 Minecraft **1.21.1**, **NeoForge 21.1.251**, **Java 21**. Production solaire et éolienne renouvelable en **HE**, stockage et transfert par le réseau énergétique commun. Les appareils exposent leurs métriques et événements via l'API publique HomeCore.
 
@@ -22,9 +22,9 @@ Résultats et limites : [validation éolienne](docs/WIND_VALIDATION.md), [équil
 
 ## Installer
 
-Copier `homelink_energy-0.2.2.jar` et `homecore-1.10.0.jar` du dossier `build/release/` dans `mods/`, côté client et serveur. Installer NeoForge pour Minecraft 1.21.1 et utiliser Java 21. Ne pas installer deux versions de HomeCore.
+Copier `homelink_energy-0.3.0.jar` et `homecore-1.11.0.jar` du dossier `build/release/` dans `mods/`, côté client et serveur. Installer NeoForge pour Minecraft 1.21.1 et utiliser Java 21. Ne pas installer deux versions de HomeCore.
 
-HomeCore **1.10.0** (API publique **1.6.0**) est obligatoire et reste un JAR séparé. La dépendance publiée est explicite dans `gradle.properties`. Pour travailler sur les deux projets, activer le composite avec `-PuseLocalDependencies=true` et un checkout voisin de même version ; aucun `publishToMavenLocal` n'est nécessaire.
+HomeCore **1.11.0** (API publique **1.7.0**) est obligatoire et reste un JAR séparé. La dépendance publiée est explicite dans `gradle.properties`. Pour travailler sur les deux projets, activer le composite avec `-PuseLocalDependencies=true` et un checkout voisin de même version ; aucun `publishToMavenLocal` n'est nécessaire.
 
 ## Utiliser
 
@@ -78,6 +78,8 @@ Le bouton HomeLink permet de rattacher une machine à un HomeNetwork géré par 
 
 **Rattachement depuis le Dashboard :** les panneaux, éoliennes et batteries implémentent `NetworkMember` (HomeCore 1.10.0). Le Dashboard peut donc les lister et les ajouter à un réseau ; le bloc garde le même rattachement qu'avec son propre bouton HomeLink. Un nom donné à l'enclume est conservé par le bloc, affiché dans son menu et dans le Dashboard, et rendu avec l'objet quand on le casse.
 
+**Marche/arrêt et renommage depuis le Dashboard :** tous les blocs Energy implémentent `Renamable` et se renomment depuis l'écran Actions du Dashboard (50 caractères au plus ; un nom vide rétablit le nom du bloc). Les panneaux solaires et les éoliennes implémentent aussi `Switchable` : éteints, ils ne produisent plus, affichent l'état « Éteint » et restent pilotables pour être rallumés. Les batteries n'ont pas d'interrupteur. HomeCore 1.11.0.
+
 ## Recettes exactes
 
 Toutes sont façonnées à la table vanilla, avec les composants HomeCore fabriqués à l'Electronics Workbench. Aucune recette ne recrée ou ne contourne leur fabrication. Les quantités ci-dessous sont les ajouts de chaque étape, hors coût récursif du niveau précédent.
@@ -96,7 +98,7 @@ IDs HomeCore vérifiés : `homecore:homelink_circuit_board`, `homecore:homelink_
 
 ## Construire et vérifier
 
-Pour développer localement, placer HomeCore 1.10.0 dans `../HomeCore` ou préciser `-Phomecore_dir=<chemin>`. Le composite utilise ces sources avec contrôle de version. Après publication du package, `-PuseLocalDependencies=false` utilise la dépendance Maven exacte, avec les identifiants GitHub Packages décrits dans la documentation HomeCore. Aucun `publishToMavenLocal` n'est nécessaire.
+Pour développer localement, placer HomeCore 1.11.0 dans `../HomeCore` ou préciser `-Phomecore_dir=<chemin>`. Le composite utilise ces sources avec contrôle de version. Après publication du package, `-PuseLocalDependencies=false` utilise la dépendance Maven exacte, avec les identifiants GitHub Packages décrits dans la documentation HomeCore. Aucun `publishToMavenLocal` n'est nécessaire.
 
 ```powershell
 # Depuis la racine ; JAVA_HOME doit désigner un JDK 21.

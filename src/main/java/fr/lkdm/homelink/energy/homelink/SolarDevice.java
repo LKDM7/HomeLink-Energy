@@ -2,6 +2,7 @@ package fr.lkdm.homelink.energy.homelink;
 
 import fr.lkdm.homecore.api.device.DeviceSchema;
 import fr.lkdm.homecore.api.device.DeviceStatus;
+import fr.lkdm.homecore.api.device.Switchable;
 import fr.lkdm.homecore.api.event.DeviceEvent;
 import fr.lkdm.homecore.api.metric.DeviceMetric;
 import fr.lkdm.homecore.api.metric.MetricTypes;
@@ -19,7 +20,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 /** HomeCore device of a solar panel: production metrics and obstruction events. */
-public final class SolarDevice extends EnergyDevice {
+public final class SolarDevice extends EnergyDevice implements Switchable {
     private final SolarPanelBlockEntity panel;
     private final DeviceMetric<SolarStatus> status = DeviceMetric.builder(EnergyIds.SOLAR_STATUS, name(EnergyIds.SOLAR_STATUS, "Status"),
             MetricTypes.enumeration(EnergyIds.SOLAR_STATUS, SolarStatus.class), SolarStatus.NIGHT).updatePolicy(UpdatePolicy.ON_CHANGE).build();
@@ -90,6 +91,6 @@ public final class SolarDevice extends EnergyDevice {
         SolarStatus state = panel.status();
         Component message = Component.translatableWithFallback("status.homelink_energy.solar." + state.name().toLowerCase(Locale.ROOT), state.name());
         return (state == SolarStatus.SKY_BLOCKED || state == SolarStatus.UNSUPPORTED_DIMENSION ? DeviceStatus.WARNING
-                : state == SolarStatus.DISABLED ? DeviceStatus.DISABLED : DeviceStatus.ONLINE).withMessage(message);
+                : state == SolarStatus.DISABLED || state == SolarStatus.SWITCHED_OFF ? DeviceStatus.DISABLED : DeviceStatus.ONLINE).withMessage(message);
     }
 }

@@ -41,4 +41,11 @@ class WindModelTest {
         core.tick(28000,2400000,1,1,100,true,true,true,P);
         assertTrue(core.generated()-before<=2); assertTrue(core.generatedPeriod()<=2);
     }
+    @Test void switchedOffTurbineProducesNothingUntilSwitchedOn() {
+        var core=new WindTurbineCore(Long.MAX_VALUE,()->0);
+        for(int t=0;t<2400;t++) core.tick(28000,t,1,1,100,true,true,true,true,false,P);
+        assertEquals(0,core.generated()); assertEquals(WindStatus.SWITCHED_OFF,core.status());
+        core.tick(28000,2400,1,1,100,true,true,true,true,true,P);
+        assertEquals(WindStatus.GENERATING,core.status());
+    }
 }

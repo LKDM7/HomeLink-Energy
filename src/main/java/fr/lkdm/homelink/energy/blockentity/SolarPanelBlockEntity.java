@@ -95,7 +95,7 @@ public final class SolarPanelBlockEntity extends EnergyDeviceBlockEntity {
         boolean overworld = server.dimension() == Level.OVERWORLD;
         double efficiency = efficiency(Weather.of(server.isRaining(), server.isThundering()));
         boolean complete = arrayComplete();
-        core.tick(tier().energyPerCycle(), overworld, skyVisible && complete, server.getDayTime(), efficiency);
+        core.tick(tier().energyPerCycle(), overworld, skyVisible && complete, server.getDayTime(), efficiency, powered());
         if (complete) exportBelow(server);
         if (core.buffer().stored() != previousEnergy || core.generator().fraction() != previousFraction
                 || core.generated() != previousGenerated || core.lost() != previousLost || core.day() != previousDay) setChanged();

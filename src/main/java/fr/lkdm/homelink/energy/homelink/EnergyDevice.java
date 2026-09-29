@@ -1,6 +1,8 @@
 package fr.lkdm.homelink.energy.homelink;
 
+import fr.lkdm.homecore.api.action.ActionResult;
 import fr.lkdm.homecore.api.device.DashboardDevice;
+import fr.lkdm.homecore.api.device.Renamable;
 import fr.lkdm.homelink.energy.energy.HeCapabilities;
 import fr.lkdm.homecore.api.event.DeviceEvent;
 import fr.lkdm.homecore.api.metric.DeviceMetric;
@@ -30,7 +32,7 @@ import com.mojang.logging.LogUtils;
  * event publishing. Metrics are refreshed about once per second by the block entity; events are
  * only published on transitions, never once per tick.
  */
-public abstract class EnergyDevice implements DashboardDevice, NetworkMember {
+public abstract class EnergyDevice implements DashboardDevice, NetworkMember, Renamable {
     protected final EnergyDeviceBlockEntity entity;
     protected final UUID identity;
     private final Consumer<DeviceEvent> events;
@@ -91,6 +93,11 @@ public abstract class EnergyDevice implements DashboardDevice, NetworkMember {
 
     @Override public UUID id() { return identity; }
     @Override public Component displayName() { return entity.name(); }
+    @Override public ActionResult rename(String name) { entity.rename(name); return ActionResult.success(); }
+
+    // Switchable, for the generators that declare it: batteries have nothing to switch off.
+    public boolean powered() { return entity.powered(); }
+    public ActionResult setPowered(boolean powered) { entity.setPowered(powered); return ActionResult.success(); }
 
     // NetworkMember: lets a dashboard move this block between networks while its recorded binding stays in step.
     @Override public Optional<UUID> homeNetwork() { return entity.homeNetwork(); }

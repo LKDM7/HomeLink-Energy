@@ -14,7 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
 
 /** One public HomeCore schema for all three tiers; no Dashboard/Tasks implementation dependency. */
-public final class WindDevice extends EnergyDevice {
+public final class WindDevice extends EnergyDevice implements Switchable {
     private final WindTurbineBlockEntity turbine;
     private final List<DeviceMetric<?>> metrics=new ArrayList<>();
     private final DeviceMetric<Integer> tier=count(id("wind_turbine_level"),"Level",3);
@@ -81,7 +81,7 @@ public final class WindDevice extends EnergyDevice {
         var status=turbine.core().status();
         var result=switch(status) {
             case GENERATING,NO_WIND -> DeviceStatus.ONLINE;
-            case DISABLED -> DeviceStatus.DISABLED;
+            case DISABLED, SWITCHED_OFF -> DeviceStatus.DISABLED;
             default -> DeviceStatus.WARNING;
         };
         return result.withMessage(Component.translatable("status.homelink_energy.wind."+status.name().toLowerCase(Locale.ROOT)));
