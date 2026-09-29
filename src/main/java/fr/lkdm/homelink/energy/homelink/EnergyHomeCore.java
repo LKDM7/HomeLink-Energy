@@ -79,27 +79,17 @@ public final class EnergyHomeCore {
      * and MANAGE_NETWORK on both the new and the previous network.
      */
     public static BindResult bind(ServerPlayer player, EnergyDeviceBlockEntity entity, Optional<UUID> target) {
-        if (!canConfigure(player, entity)) return BindResult.DENIED;
-        Optional<UUID> current = entity.homeNetwork();
-        if (current.equals(target)) return BindResult.UNCHANGED;
-        var networks = DashboardAPI.networks(player.server);
-        Optional<HomeNetwork> destination = Optional.empty();
-        if (target.isPresent()) {
-            destination = networks.getNetwork(target.get());
-            if (destination.isEmpty()) return BindResult.UNKNOWN_NETWORK;
-            if (!DashboardAPI.hasPermission(player, target.get(), Permission.MANAGE_NETWORK)) return BindResult.DENIED;
-        }
-        if (current.isPresent() && networks.getNetwork(current.get()).isPresent()) {
-            if (!DashboardAPI.hasPermission(player, current.get(), Permission.MANAGE_NETWORK)) return BindResult.DENIED;
-            networks.removeDevice(current.get(), entity.deviceId());
-        }
-        if (destination.isPresent()) {
-            networks.addDevice(destination.get().id(), entity.deviceId());
-            entity.setHomeNetwork(destination.get().id(), destination.get().name());
-            return BindResult.BOUND;
-        }
-        entity.clearHomeNetwork();
-        return BindResult.UNBOUND;
+
+        var adapter = DashboardAPI.devices(player.server).get(entity.deviceId())
+                .or(() -> DashboardAPI.providers().discover(entity));
+        if (adapter.isEmpty()) return BindResult.DENIED;
+        return switch (DashboardAPI.bindDevice(player, adapter.get(), target)) {
+            case BOUND -> BindResult.BOUND;
+            case UNBOUND -> BindResult.UNBOUND;
+            case UNCHANGED -> BindResult.UNCHANGED;
+            case UNKNOWN_NETWORK -> BindResult.UNKNOWN_NETWORK;
+            case DENIED, NOT_SUPPORTED -> BindResult.DENIED;
+        };
     }
 
     /** The block was destroyed: remove its identity from its network. */

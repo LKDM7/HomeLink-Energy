@@ -1,16 +1,19 @@
+param([string]$HomeCorePath)
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
-$dependencyPath = Join-Path $projectRoot '.dependencies/HomeCore'
-$commit = '5ae6db2864809d53308126a6d581c7944f9a7c64'
-if (Test-Path -LiteralPath $dependencyPath) {
-    $head = git -C $dependencyPath rev-parse HEAD
-    if ($LASTEXITCODE -ne 0 -or $head -ne $commit) { throw 'Existing dependency differs; use a clean checkout at the pinned commit.' }
-    $dirty = git -C $dependencyPath status --porcelain --untracked-files=all
-    if ($dirty) { throw 'Existing dependency contains local changes; left untouched.' }
-} else {
-    git clone https://github.com/LKDM7/HomeCore.git $dependencyPath
-    if ($LASTEXITCODE -ne 0) { throw 'HomeCore clone failed. Authenticate to GitHub, or provide a verifiable local checkout.' }
-    git -C $dependencyPath checkout --detach $commit
-    if ($LASTEXITCODE -ne 0) { throw 'Pinned HomeCore commit unavailable.' }
+if ([string]::IsNullOrWhiteSpace($HomeCorePath)) { $HomeCorePath = Join-Path $projectRoot '../HomeCore' }
+$propertiesPath = Join-Path $HomeCorePath 'gradle.properties'
+if (!(Test-Path -LiteralPath $propertiesPath -PathType Leaf) -or !(Test-Path -LiteralPath (Join-Path $HomeCorePath 'settings.gradle') -PathType Leaf)) {
+    throw 'Checkout HomeCore absent. Cloner la version voulue dans ../HomeCore ou passer -HomeCorePath <chemin>.'
 }
-Write-Output "HomeCore 1.9.0 pinned at $commit"
+function Read-Property([string]$Path, [string]$Key) {
+    $line = Get-Content -LiteralPath $Path | Where-Object { $_ -match ('^' + [regex]::Escape($Key) + '=') } | Select-Object -First 1
+    if (!$line) { throw ('Propriete absente : ' + $Key) }
+    return $line.Substring($line.IndexOf('=') + 1).Trim()
+}
+$expected = Read-Property (Join-Path $projectRoot 'gradle.properties') 'homecore_version'
+$actual = Read-Property $propertiesPath 'mod_version'
+$minecraft = Read-Property $propertiesPath 'minecraft_version'
+if ($actual -ne $expected -or $minecraft -ne '1.21.1') { throw ('HomeCore attendu : ' + $expected + ', Minecraft 1.21.1 ; trouve : ' + $actual + ', ' + $minecraft) }
+Write-Output ('HomeCore ' + $actual + ' verifie : ' + (Resolve-Path -LiteralPath $HomeCorePath).Path)
+Write-Output 'Aucun fichier modifie. Utiliser -Phomecore_dir=<chemin> si ce checkout ne se trouve pas dans ../HomeCore.'

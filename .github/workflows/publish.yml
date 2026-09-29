@@ -1,0 +1,55 @@
+name: Publish Energy Maven package
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact mod_version to publish from main
+        required: true
+        type: string
+permissions:
+  contents: read
+  packages: write
+concurrency:
+  group: energy-publication
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GITHUB_ACTOR: ${{ github.actor }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      HOMELINK_PACKAGES_TOKEN: ${{ secrets.HOMELINK_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Check requested version
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: test "$(sed -n 's/^mod_version=//p' gradle.properties | tr -d '\r')" = "$REQUESTED_VERSION"
+      - name: Build, unit tests and release archive
+        run: bash gradlew build test verifyReleaseJar -PuseLocalDependencies=false --no-daemon --no-configuration-cache
+      - name: Server GameTests
+        run: bash gradlew runGameTestServer -PuseLocalDependencies=false --no-daemon --no-configuration-cache
+      - name: Stage publication
+        run: bash gradlew publishMavenJavaPublicationToStagingRepository -PuseLocalDependencies=false --no-daemon --no-configuration-cache
+      - name: Resolve staged publication in an independent consumer
+        run: bash gradlew -p .github/publication-smoke verifyPublishedArtifacts --no-daemon --no-configuration-cache
+      - name: Publish to GitHub Packages
+        run: bash gradlew publishMavenJavaPublicationToGitHubPackagesRepository -PuseLocalDependencies=false --no-daemon --no-configuration-cache
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: energy-publication-reports
+          path: |
+            build/reports/
+            build/test-results/
+            build/validation/gametest/logs/
+            build/staging-repository/

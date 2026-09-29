@@ -1,4 +1,4 @@
-# HomeLink Energy — développement 0.2.1
+# HomeLink Energy — développement 0.2.2
 
 Minecraft **1.21.1**, **NeoForge 21.1.251**, **Java 21**. Production solaire et éolienne renouvelable en **HE**, stockage et transfert par le réseau énergétique commun. Les appareils exposent leurs métriques et événements via l'API publique HomeCore.
 
@@ -22,9 +22,9 @@ Résultats et limites : [validation éolienne](docs/WIND_VALIDATION.md), [équil
 
 ## Installer
 
-Copier `homelink_energy-0.2.1.jar` et `homecore-1.9.0.jar` du dossier `build/release/` dans `mods/`, côté client et serveur. Installer NeoForge pour Minecraft 1.21.1 et utiliser Java 21. Ne pas installer deux versions de HomeCore.
+Copier `homelink_energy-0.2.2.jar` et `homecore-1.10.0.jar` du dossier `build/release/` dans `mods/`, côté client et serveur. Installer NeoForge pour Minecraft 1.21.1 et utiliser Java 21. Ne pas installer deux versions de HomeCore.
 
-HomeCore est **obligatoire** et construit séparément depuis le véritable dépôt, au commit épinglé dans `gradle.properties` (`homecore_commit`), version 1.9.0, API publique 1.5.0. Il n'est pas inclus dans le JAR Energy. `scripts/bootstrap-homecore.ps1` prépare cette copie épinglée.
+HomeCore **1.10.0** (API publique **1.6.0**) est obligatoire et reste un JAR séparé. La dépendance publiée est explicite dans `gradle.properties`. Pour travailler sur les deux projets, activer le composite avec `-PuseLocalDependencies=true` et un checkout voisin de même version ; aucun `publishToMavenLocal` n'est nécessaire.
 
 ## Utiliser
 
@@ -74,9 +74,9 @@ Dans chaque réseau : sorties des producteurs vers consommateurs, surplus vers b
 
 Le bouton HomeLink permet de rattacher une machine à un HomeNetwork géré par le joueur. Le serveur vérifie le menu ouvert, sa position, sa dimension, sa distance et les permissions HomeCore. Les appareils exposent métriques HE et HE/t, état et événements de transition (production, obstruction, batterie basse/vide/pleine, connexion). Les alarmes ont une hystérésis et ne sont pas émises à chaque tick.
 
-**Intégration :** les machines de HomeLink Farm, Quarry, Storage et Dashboard consomment des HE à travers le contrat énergie de HomeCore 1.8.0 (`EnergyApi.BLOCK`) et déclarent HomeLink Energy comme dépendance obligatoire. Pas encore de widget Dashboard ni de règle Tasks spécifiques.
+**Intégration :** les machines de HomeLink Farm, Quarry, Storage et Dashboard consomment des HE à travers le contrat énergie de HomeCore 1.10.0 (`EnergyApi.BLOCK`) et déclarent HomeLink Energy comme dépendance obligatoire. Energy ne dépend ni du Dashboard ni de Tasks.
 
-**Rattachement depuis le Dashboard :** les panneaux, éoliennes et batteries implémentent `NetworkMember` (HomeCore 1.9.0). Le Dashboard peut donc les lister et les ajouter à un réseau ; le bloc garde le même rattachement qu'avec son propre bouton HomeLink. Un nom donné à l'enclume est conservé par le bloc, affiché dans son menu et dans le Dashboard, et rendu avec l'objet quand on le casse.
+**Rattachement depuis le Dashboard :** les panneaux, éoliennes et batteries implémentent `NetworkMember` (HomeCore 1.10.0). Le Dashboard peut donc les lister et les ajouter à un réseau ; le bloc garde le même rattachement qu'avec son propre bouton HomeLink. Un nom donné à l'enclume est conservé par le bloc, affiché dans son menu et dans le Dashboard, et rendu avec l'objet quand on le casse.
 
 ## Recettes exactes
 
@@ -96,10 +96,11 @@ IDs HomeCore vérifiés : `homecore:homelink_circuit_board`, `homecore:homelink_
 
 ## Construire et vérifier
 
-Le dépôt HomeCore doit être accessible avec votre compte GitHub. Aucun JitPack ni artefact Maven distant supposé n'est utilisé : Gradle substitue la dépendance par un build composite local vérifié.
+Pour développer localement, placer HomeCore 1.10.0 dans `../HomeCore` ou préciser `-Phomecore_dir=<chemin>`. Le composite utilise ces sources avec contrôle de version. Après publication du package, `-PuseLocalDependencies=false` utilise la dépendance Maven exacte, avec les identifiants GitHub Packages décrits dans la documentation HomeCore. Aucun `publishToMavenLocal` n'est nécessaire.
 
 ```powershell
 # Depuis la racine ; JAVA_HOME doit désigner un JDK 21.
+# Facultatif : vérifier le checkout local sans le modifier.
 .\scripts\bootstrap-homecore.ps1
 .\gradlew.bat build --console=plain
 .\gradlew.bat runGameTestServer --console=plain
@@ -108,7 +109,7 @@ Le dépôt HomeCore doit être accessible avec votre compte GitHub. Aucun JitPac
 .\gradlew.bat releaseBundle --console=plain
 ```
 
-La dépendance est dans `.dependencies/HomeCore`. Une autre copie propre est utilisable avec `-Phomecore_dir=<chemin>` au même commit. Gradle refuse un checkout différent ou modifié. Pour forcer la réexécution des tests unitaires seulement : `gradlew test --rerun --console=plain`.
+Le script facultatif vérifie seulement la présence et la version du checkout voisin ; il ne clone aucun dépôt, ne change aucun commit et ne publie rien. Des sources locales modifiées peuvent être testées par composite. La version doit correspondre à `homecore_version` dans `gradle.properties`. Pour forcer les tests unitaires : `gradlew test --rerun-tasks --console=plain`.
 
 Configuration : `serverconfig/homelink_energy-server.toml` dans le monde ; NeoForge peut utiliser `config/` pour les exécutions de vérification. Les valeurs sont bornées. Java trouvé directement dans le PATH était Java 8 sur ce poste ; les compilations et jeux de cette livraison ont utilisé la toolchain Java 21.
 

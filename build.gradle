@@ -9,6 +9,16 @@ group = mod_group_id
 base { archivesName = mod_id }
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 repositories {
+    maven {
+        name = 'HomeCorePackages'
+        url = uri('https://maven.pkg.github.com/LKDM7/HomeCore')
+        credentials {
+            username = providers.gradleProperty('githubUser').orElse(providers.environmentVariable('GITHUB_ACTOR')).getOrElse('')
+            password = providers.gradleProperty('githubToken').orElse(providers.environmentVariable('HOMELINK_PACKAGES_TOKEN')).orElse(providers.environmentVariable('GITHUB_TOKEN')).getOrElse('')
+        }
+        content { includeGroup 'fr.lkdm.homecore' }
+    }
+
     mavenCentral()
 }
 dependencies {
@@ -108,7 +118,7 @@ tasks.withType(Jar).configureEach {
     from('LICENSE') { into 'META-INF' }
     preserveFileTimestamps = false
     reproducibleFileOrder = true
-    manifest.attributes('Implementation-Version': mod_version, 'HomeCore-Commit': homecore_commit)
+    manifest.attributes('Implementation-Version': mod_version)
 }
 tasks.named('check') { dependsOn tasks.named('verificationClasses') }
 def releaseJar = tasks.named('jar', Jar).flatMap { it.archiveFile }
@@ -159,7 +169,6 @@ idea {
         downloadJavadoc = true
     }
 }
-// Machines of the other HomeLink mods require this mod at runtime; they load it from Maven local in development.
 publishing {
     publications {
         register('mavenJava', MavenPublication) {
@@ -167,5 +176,31 @@ publishing {
             from components.java
         }
     }
-    repositories { mavenLocal() }
+    repositories {
+        maven {
+            name = 'GitHubPackages'
+            url = uri('https://maven.pkg.github.com/LKDM7/HomeLink-Energy')
+            credentials {
+                username = providers.gradleProperty('githubUser').orElse(providers.environmentVariable('GITHUB_ACTOR')).getOrElse('')
+                password = providers.gradleProperty('githubToken').orElse(providers.environmentVariable('GITHUB_TOKEN')).getOrElse('')
+            }
+        }
+    }
 }
+
+java.withSourcesJar()
+publishing {
+    publications.named('mavenJava', MavenPublication) {
+        pom {
+            name = 'HomeLink Energy'
+            description = 'Renewable production, storage and distribution of HomeLink Energy.'
+            url = 'https://github.com/LKDM7/HomeLink-Energy'
+            licenses { license { name = 'Apache License, Version 2.0'; url = 'https://www.apache.org/licenses/LICENSE-2.0.txt' } }
+            scm { url = 'https://github.com/LKDM7/HomeLink-Energy'; connection = 'scm:git:https://github.com/LKDM7/HomeLink-Energy.git' }
+        }
+    }
+    repositories {
+        maven { name = 'Staging'; url = layout.buildDirectory.dir('staging-repository') }
+    }
+}
+tasks.withType(PublishToMavenRepository).configureEach { dependsOn tasks.named('check') }

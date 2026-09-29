@@ -1,0 +1,76 @@
+plugins { id 'base' }
+def producer = file('../..')
+def values = new Properties()
+new File(producer, 'gradle.properties').withInputStream { values.load(it) }
+def coordinate = "${values.mod_group_id}:${values.mod_id}:${values.mod_version}"
+def localCoreRepository = providers.gradleProperty('homecore_staging_repo')
+repositories {
+    maven {
+        name = 'HomeCoreOnly'
+        if (localCoreRepository.isPresent()) {
+            def directory = file(localCoreRepository.get())
+            if (!directory.isDirectory()) throw new GradleException('homecore_staging_repo must be an existing Maven repository.')
+            url = directory.toURI()
+        } else {
+            url = uri('https://maven.pkg.github.com/LKDM7/HomeCore')
+            credentials {
+                username = providers.environmentVariable('GITHUB_ACTOR').getOrElse('')
+                password = providers.environmentVariable('HOMELINK_PACKAGES_TOKEN').orElse(providers.environmentVariable('GITHUB_TOKEN')).getOrElse('')
+            }
+        }
+        content { includeModule 'fr.lkdm.homecore', 'homecore' }
+    }
+    maven {
+        url = new File(producer, 'build/staging-repository').toURI()
+        metadataSources { mavenPom(); artifact() }
+        content { includeModule values.mod_group_id, values.mod_id }
+    }
+}
+def suffixes = [binary: '', sources: ':sources', pom: '@pom', module: '@module']
+suffixes.each { label, suffix ->
+    configurations.create(label) { canBeResolved = true; canBeConsumed = false; transitive = false }
+    dependencies.add(label, coordinate + suffix)
+}
+def consumerRuntime = configurations.create('consumerRuntime') {
+    canBeResolved = true
+    canBeConsumed = false
+    transitive = true
+}
+dependencies.add('consumerRuntime', coordinate)
+def artifacts = suffixes.collectEntries { label, ignored -> [(label): configurations.getByName(label)] }
+tasks.register('verifyPublishedArtifacts') {
+    notCompatibleWithConfigurationCache('Inspects the isolated staging publication.')
+    inputs.files(artifacts.values())
+    inputs.files(consumerRuntime)
+    doLast {
+        def runtimeArtifacts = consumerRuntime.resolvedConfiguration.resolvedArtifacts
+        def runtimeCore = runtimeArtifacts.find { it.moduleVersion.id.group == 'fr.lkdm.homecore' && it.name == 'homecore' }
+        if (runtimeCore == null || runtimeCore.moduleVersion.id.version != values.homecore_version) {
+            throw new GradleException('Consumer runtime did not resolve the exact transitive HomeCore dependency.')
+        }
+        def resolved = artifacts.collectEntries { label, configuration -> [(label): configuration.singleFile] }
+        def pom = new XmlSlurper().parse(resolved.pom)
+        if (pom.groupId.text() != values.mod_group_id || pom.artifactId.text() != values.mod_id || pom.version.text() != values.mod_version) {
+            throw new GradleException('Published POM coordinates mismatch.')
+        }
+        def homecore = pom.dependencies.dependency.find { it.groupId.text() == 'fr.lkdm.homecore' && it.artifactId.text() == 'homecore' }
+        if (homecore == null || homecore.version.text() != values.homecore_version) throw new GradleException('Published HomeCore dependency mismatch.')
+        if (pom.dependencies.dependency.any { it.groupId.text().startsWith('org.junit') }) throw new GradleException('Test dependency in publication.')
+        def module = new groovy.json.JsonSlurper().parse(resolved.module)
+        if (module.component.group != values.mod_group_id || module.component.module != values.mod_id || module.component.version != values.mod_version) {
+            throw new GradleException('Published Gradle module coordinates mismatch.')
+        }
+        ['binary': 'fr/lkdm/homelink/energy/HomeLinkEnergy.class', 'sources': 'fr/lkdm/homelink/energy/HomeLinkEnergy.java'].each { label, entry ->
+            new java.util.zip.ZipFile(resolved[label]).withCloseable { archive ->
+                if (archive.getEntry(entry) == null) throw new GradleException("Missing ${entry}.")
+                if (archive.entries().any { it.name.contains('/verification/') || it.name.startsWith('fr/lkdm/homecore/') || it.name.startsWith('org/junit/') }) {
+                    throw new GradleException('Dependency or verification content embedded in publication.')
+                }
+            }
+            def classifier = label == 'binary' ? '' : '-sources'
+            def built = new File(producer, "build/libs/${values.mod_id}-${values.mod_version}${classifier}.jar")
+            if (!built.isFile() || java.nio.file.Files.mismatch(built.toPath(), resolved[label].toPath()) != -1L) throw new GradleException("Published ${label} differs from validated build.")
+        }
+        logger.lifecycle('Verified published Energy artifacts and explicit HomeCore dependency: {}', coordinate)
+    }
+}
