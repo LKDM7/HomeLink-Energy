@@ -188,6 +188,16 @@ public final class ClientSmoke {
     }
 
     private static void checkModels(Minecraft mc) {
+        var cable = EnergyRegistries.COPPER_ENERGY_CABLE.get().defaultBlockState();
+        for (Direction face : Direction.values()) {
+            var state = cable;
+            for (var entry : fr.lkdm.homelink.energy.block.CopperEnergyCableBlock.FACES.entrySet())
+                state = state.setValue(entry.getValue(), entry.getKey() == face);
+            checkCableBack(mc.getBlockRenderer().getBlockModel(state), state, face);
+        }
+        for (var id : java.util.List.of(fr.lkdm.homelink.energy.client.CableRenderer.TRACE,
+                fr.lkdm.homelink.energy.client.CableRenderer.CORNER))
+            checkCableBack(mc.getModelManager().getModel(id), null, Direction.DOWN);
         for(String id:new String[]{"solar_panel_1","solar_panel_2","solar_panel_3","wind_turbine_1","wind_turbine_2","wind_turbine_3","battery_1","battery_2","battery_3","copper_energy_cable"}) {
             var model=mc.getModelManager().getModel(new ModelResourceLocation(HomeLinkEnergy.id(id),"inventory"));
             if(model==mc.getModelManager().getMissingModel() || model.getParticleIcon(net.neoforged.neoforge.client.model.data.ModelData.EMPTY).contents().name().getPath().equals("missingno")) throw new IllegalStateException("Missing model/texture "+id);
@@ -195,6 +205,21 @@ public final class ClientSmoke {
         }
         for(var id:java.util.List.of(fr.lkdm.homelink.energy.client.WindTurbineRenderer.TOWER,fr.lkdm.homelink.energy.client.WindTurbineRenderer.NACELLE,fr.lkdm.homelink.energy.client.WindTurbineRenderer.NACELLE_2,fr.lkdm.homelink.energy.client.WindTurbineRenderer.NACELLE_3,fr.lkdm.homelink.energy.client.WindTurbineRenderer.BLADE,fr.lkdm.homelink.energy.client.WindTurbineRenderer.HUB,fr.lkdm.homelink.energy.client.CableRenderer.TRACE,fr.lkdm.homelink.energy.client.CableRenderer.CORNER))
             if(mc.getModelManager().getModel(id)==mc.getModelManager().getMissingModel()) throw new IllegalStateException("Missing rotor model "+id);
+    }
+    private static void checkCableBack(net.minecraft.client.resources.model.BakedModel model,
+                                      net.minecraft.world.level.block.state.BlockState state, Direction face) {
+        int axis = face.getAxis() == Direction.Axis.X ? 0 : face.getAxis() == Direction.Axis.Y ? 1 : 2;
+        float boundary = face.getAxisDirection() == Direction.AxisDirection.POSITIVE ? 1 : 0;
+        var quads = model.getQuads(state, null, net.minecraft.util.RandomSource.create(0),
+                net.neoforged.neoforge.client.model.data.ModelData.EMPTY, null);
+        boolean visibleBack = quads.stream().anyMatch(quad -> {
+            if (quad.getDirection() != face || quad.getSprite().contents().name().getPath().equals("missingno")) return false;
+            int[] vertices = quad.getVertices();
+            for (int vertex = 0; vertex < 4; vertex++)
+                if (Math.abs(Float.intBitsToFloat(vertices[vertex * (vertices.length / 4) + axis]) - boundary) > 0.0001F) return false;
+            return true;
+        });
+        if (!visibleBack) throw new IllegalStateException("Missing textured cable back: " + face);
     }
     private static void openWind(Minecraft mc,boolean block) {
         var id=mc.player.getUUID(); var server=mc.getSingleplayerServer();

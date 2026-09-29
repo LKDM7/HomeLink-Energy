@@ -98,14 +98,13 @@ for(const [face] of directions) {
     const a=orient[face](e.from),b=orient[face](e.to);
     return {...e,from:a.map((v,i)=>Math.min(v,b[i])),to:a.map((v,i)=>Math.max(v,b[i]))};
   });
-  // A surface cable's back is flush against its support and is never visible.
-  for(const e of elements)delete e.faces[face];
+  // Keep the support-facing skin: glass supports expose the back of the cable.
   write(`${assets}/models/block/cable_surface_${face}.json`,{textures:{...texture,particle:tex('copper_energy_cable')},elements});
 }
 write(`${assets}/blockstates/copper_energy_cable.json`,{multipart:directions.map(([face])=>({when:{[face]:'true'},apply:{model:tex(`cable_surface_${face}`)}}))});
 // End before the central node: perpendicular renderer arms must never overlap.
 const arm=[dark([6.5,0,0],[9.5,0.4,6]),copper([7,0.4,0],[9,0.65,6])];
-for(const e of arm) { delete e.faces.down; delete e.faces.north; delete e.faces.south; }
+for(const e of arm) { delete e.faces.north; delete e.faces.south; }
 write(`${assets}/models/block/cable_trace.json`,{textures:{...texture,particle:tex('copper_energy_cable')},elements:arm});
 // One side owns an inside bend; the other begins after its thickness to prevent duplicate side faces.
 const cornerArm=arm.map(e=>({...e,from:[e.from[0],e.from[1],.65]}));
