@@ -36,6 +36,8 @@ public final class EnergyNetworks {
     private final Map<BlockPos, EnergyNetwork> byCable = new HashMap<>();
     private final Map<BlockPos, List<EnergyNetwork>> byMachine = new HashMap<>();
     private List<EnergyNetwork> networks = List.of();
+    /** Positions changed since the last rebuild; only networks near them are rebuilt. */
+    private final Set<BlockPos> changed = new HashSet<>();
     private boolean dirty;
     private BlockPos lastChange;
     private int nextId = 1;
@@ -76,6 +78,7 @@ public final class EnergyNetworks {
     public void markDirty(BlockPos pos) {
         dirty = true;
         lastChange = pos.immutable();
+        changed.add(lastChange);
     }
 
     /** Runs one server tick: rebuild if needed, then distribute. */
@@ -85,15 +88,31 @@ public final class EnergyNetworks {
         for (EnergyNetwork network : networks) network.tick(gameTime);
     }
 
+    /**
+     * Rebuilds only the networks a change can affect: those owning a cable or a machine within
+     * {@link #REACH} of a changed position, plus any network a new connection merges into them.
+     * Untouched networks keep their identity and their production statistics.
+     */
     private void rebuild() {
         dirty = false;
         rebuilds++;
         int limit = EnergyConfig.MAX_ENERGY_NETWORK_NODES.get();
-        List<EnergyNetwork> built = new ArrayList<>();
-        byCable.clear();
-        byMachine.clear();
+        Set<EnergyNetwork> affected = new HashSet<>();
+        Set<BlockPos> seeds = new HashSet<>();
+        for (BlockPos change : changed) {
+            affected.addAll(byMachine.getOrDefault(change, List.of()));
+            for (BlockPos near : BlockPos.betweenClosed(change.offset(-REACH, -REACH, -REACH), change.offset(REACH, REACH, REACH))) {
+                EnergyNetwork owner = byCable.get(near);
+                if (owner != null) affected.add(owner);
+                if (cables.contains(near)) seeds.add(near.immutable());
+            }
+        }
+        changed.clear();
+        for (EnergyNetwork network : affected) for (BlockPos cable : network.cables()) if (cables.contains(cable)) seeds.add(cable);
+
         Set<BlockPos> visited = new HashSet<>();
-        List<BlockPos> ordered = new ArrayList<>(cables);
+        List<EnergyNetwork> built = new ArrayList<>();
+        List<BlockPos> ordered = new ArrayList<>(seeds);
         ordered.sort(Comparator.comparingLong(BlockPos::asLong));
         for (BlockPos start : ordered) {
             if (!visited.add(start)) continue;
@@ -105,6 +124,9 @@ public final class EnergyNetworks {
             while (!queue.isEmpty()) {
                 BlockPos cable = queue.poll();
                 component.add(cable);
+                // A new connection may reach a network nobody marked: it is merged, so it is replaced too.
+                EnergyNetwork previous = byCable.get(cable);
+                if (previous != null) affected.add(previous);
                 for (BlockPos adjacent : fr.lkdm.homelink.energy.block.CopperEnergyCableBlock.neighbors(level, cable)) {
                     if (cables.contains(adjacent) && visited.add(adjacent)) queue.add(adjacent);
                 }
@@ -130,14 +152,30 @@ public final class EnergyNetworks {
                     endpoints.add(new EnergyNetwork.Endpoint(machine, cache::getCapability));
                 }
             }
-            EnergyNetwork network = new EnergyNetwork(nextId++, component, endpoints, tooLarge);
-            built.add(network);
-            for (BlockPos cable : component) byCable.put(cable, network);
-            for (EnergyNetwork.Endpoint endpoint : endpoints) byMachine.computeIfAbsent(endpoint.pos(), key -> new ArrayList<>(1)).add(network);
-            if (tooLarge) warnTooLarge(network, limit);
+            built.add(new EnergyNetwork(nextId++, component, endpoints, tooLarge));
         }
-        networks = Collections.unmodifiableList(built);
+
+        // Replace the affected networks; every other network keeps running untouched.
+        for (EnergyNetwork old : affected) {
+            for (BlockPos cable : old.cables()) byCable.remove(cable, old);
+            for (EnergyNetwork.Endpoint endpoint : old.endpoints()) {
+                List<EnergyNetwork> list = byMachine.get(endpoint.pos());
+                if (list != null && list.remove(old) && list.isEmpty()) byMachine.remove(endpoint.pos());
+            }
+        }
+        for (EnergyNetwork network : built) {
+            for (BlockPos cable : network.cables()) byCable.put(cable, network);
+            for (EnergyNetwork.Endpoint endpoint : network.endpoints()) byMachine.computeIfAbsent(endpoint.pos(), key -> new ArrayList<>(1)).add(network);
+            if (network.tooLarge()) warnTooLarge(network, limit);
+        }
+        List<EnergyNetwork> next = new ArrayList<>(networks.size() + built.size());
+        for (EnergyNetwork network : networks) if (!affected.contains(network)) next.add(network);
+        next.addAll(built);
+        networks = Collections.unmodifiableList(next);
     }
+
+    /** Distance, per axis, at which a changed position can alter a network (cable, support, then port). */
+    private static final int REACH = 2;
 
     private void warnTooLarge(EnergyNetwork network, int limit) {
         HomeLinkEnergy.LOGGER.warn("Energy network {} in {} has {}+ nodes, over the limit of {}: NETWORK_TOO_LARGE, it will not move energy",

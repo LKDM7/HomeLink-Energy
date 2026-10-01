@@ -47,6 +47,16 @@ Le consommateur de vérification est exclusivement dans `src/verification`. Il n
 
 Les avertissements vanilla sur commandes ambiguës, atlas et shader ne constituent pas des assertions réussies ou échouées. Les résultats reposent sur les compteurs de tests et les marqueurs explicites, pas sur la seule absence de crash.
 
+## 0.4.1 — reconstruction ciblée des réseaux (1er octobre 2026)
+
+Un changement (câble posé, cassé, chargé ou déchargé, machine ajoutée ou retirée) ne
+reconstruit plus que les réseaux situés à deux blocs au plus de la position modifiée,
+ainsi que tout réseau qu'une nouvelle liaison fusionne avec eux. Les autres réseaux de la
+dimension gardent leur identité et leurs statistiques de production : avant, poser un câble
+n'importe où remettait à zéro les moyennes de tous les réseaux. `gradlew build` et
+`runGameTestServer` réussissent (73 GameTests, dont deux nouveaux : réseau voisin intact,
+fusion puis séparation sans câble fantôme).
+
 ## Hydro 0.4.0 — passage du 1er octobre 2026
 
 Commandes exécutées dans ce workspace (Windows 11, Ryzen 16 threads, JDK 21.0.11, HomeCore 1.12.0 en build composite depuis `../HomeCore`, qui contient des modifications locales non commitées) :

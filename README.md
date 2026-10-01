@@ -1,4 +1,4 @@
-# HomeLink Energy — développement 0.4.0
+# HomeLink Energy — développement 0.4.1
 
 Minecraft **1.21.1**, **NeoForge 21.1.251**, **Java 21**. Production solaire, éolienne et hydraulique renouvelable en **HE**, stockage et transfert par le réseau énergétique commun. Les appareils exposent leurs métriques et événements via l'API publique HomeCore.
 
@@ -34,7 +34,7 @@ Détails, repère local des ports, états, configuration `[hydro]` et dépannage
 
 ## Installer
 
-Copier `homelink_energy-0.4.0.jar` et `homecore-1.12.0.jar` du dossier `build/release/` dans `mods/`, côté client et serveur. Installer NeoForge pour Minecraft 1.21.1 et utiliser Java 21. Ne pas installer deux versions de HomeCore.
+Copier `homelink_energy-0.4.1.jar` et `homecore-1.12.0.jar` du dossier `build/release/` dans `mods/`, côté client et serveur. Installer NeoForge pour Minecraft 1.21.1 et utiliser Java 21. Ne pas installer deux versions de HomeCore.
 
 HomeCore **1.12.0** (API publique **1.8.0**) est obligatoire et reste un JAR séparé. La dépendance publiée est explicite dans `gradle.properties`. Pour travailler sur les deux projets, activer le composite avec `-PuseLocalDependencies=true` et un checkout voisin de même version ; aucun `publishToMavenLocal` n'est nécessaire.
 

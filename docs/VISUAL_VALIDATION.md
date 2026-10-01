@@ -24,7 +24,7 @@ node scripts/audit-assemblies.cjs
 Génération des textures exécutée avec le JDK 21 installé par Gradle :
 
 ```powershell
-& 'C:\Users\LKDM-\.gradle\jdks\eclipse_adoptium-21-amd64-windows\jdk-21.0.11+10\bin\java.exe' scripts/GenerateWindTextures.java
+java scripts/GenerateWindTextures.java   # JDK 21 (par exemple celui provisionné par Gradle)
 ```
 
 `java` dans le PATH pointe sur Java 8 ; le build utilise toujours la toolchain Java 21 du projet.

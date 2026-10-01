@@ -27,3 +27,8 @@ run
 
 # Reproducible isolated dependency checkout
 .dependencies/
+
+# Local validation output: logs and JUnit reports carry machine paths; keep them out of Git.
+docs/validation/**/*.log
+docs/validation/**/*.xml
+docs/validation/_local/

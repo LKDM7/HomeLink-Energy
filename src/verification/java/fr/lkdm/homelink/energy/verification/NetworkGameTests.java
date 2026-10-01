@@ -265,4 +265,59 @@ public final class NetworkGameTests {
             });
         });
     }
+
+    /** A change in one network leaves the others untouched: same object, statistics kept. */
+    @GameTest(template = "empty", batch = "net_incremental", timeoutTicks = 100)
+    public static void changeRebuildsOnlyTheNetworkItTouches(GameTestHelper helper) {
+        night(helper);
+        cables(helper, 0, 2, 1, 0);
+        cables(helper, 0, 2, 1, 4);
+        helper.runAfterDelay(5, () -> {
+            var far = networks(helper).networkOfCable(helper.absolutePos(new BlockPos(0, 1, 4))).orElseThrow();
+            var near = networks(helper).networkOfCable(helper.absolutePos(new BlockPos(0, 1, 0))).orElseThrow();
+            check(helper, far != near, "Separate lines share a network");
+            cables(helper, 3, 3, 1, 0);
+            helper.runAfterDelay(5, () -> {
+                check(helper, networks(helper).networkOfCable(helper.absolutePos(new BlockPos(0, 1, 4))).orElseThrow() == far,
+                        "An untouched network was rebuilt");
+                var grown = networks(helper).networkOfCable(helper.absolutePos(new BlockPos(3, 1, 0))).orElseThrow();
+                check(helper, grown != near && grown.cables().size() == 4
+                        && grown == networks(helper).networkOfCable(helper.absolutePos(new BlockPos(0, 1, 0))).orElseThrow(),
+                        "The extended line was not rebuilt as one network");
+                check(helper, !networks(helper).networks().contains(near), "The replaced network is still ticking");
+                helper.succeed();
+            });
+        });
+    }
+
+    /** Bridging two lines merges them; breaking the bridge splits them again with no stale cable. */
+    @GameTest(template = "empty", batch = "net_merge", timeoutTicks = 100)
+    public static void bridgeMergesThenSplitsNetworks(GameTestHelper helper) {
+        night(helper);
+        cables(helper, 0, 1, 1, 0);
+        cables(helper, 3, 4, 1, 0);
+        BlockPos bridge = new BlockPos(2, 1, 0);
+        helper.runAfterDelay(5, () -> {
+            var left = networks(helper).networkOfCable(helper.absolutePos(new BlockPos(0, 1, 0))).orElseThrow();
+            var right = networks(helper).networkOfCable(helper.absolutePos(new BlockPos(4, 1, 0))).orElseThrow();
+            check(helper, left != right, "Separated lines share a network");
+            int before = networks(helper).networks().size();
+            cables(helper, 2, 2, 1, 0);
+            helper.runAfterDelay(5, () -> {
+                var merged = networks(helper).networkOfCable(helper.absolutePos(new BlockPos(0, 1, 0))).orElseThrow();
+                check(helper, merged.cables().size() == 5
+                        && merged == networks(helper).networkOfCable(helper.absolutePos(new BlockPos(4, 1, 0))).orElseThrow(), "Bridge did not merge");
+                check(helper, networks(helper).networks().size() == before - 1, "Merged networks left a duplicate");
+                helper.setBlock(bridge, Blocks.AIR);
+                helper.runAfterDelay(5, () -> {
+                    var l = networks(helper).networkOfCable(helper.absolutePos(new BlockPos(0, 1, 0))).orElseThrow();
+                    var r = networks(helper).networkOfCable(helper.absolutePos(new BlockPos(4, 1, 0))).orElseThrow();
+                    check(helper, l != r && l.cables().size() == 2 && r.cables().size() == 2, "Broken bridge did not split");
+                    check(helper, networks(helper).networkOfCable(helper.absolutePos(bridge)).isEmpty(), "Removed cable still mapped");
+                    check(helper, !networks(helper).networks().contains(merged), "The merged network is still ticking");
+                    helper.succeed();
+                });
+            });
+        });
+    }
 }

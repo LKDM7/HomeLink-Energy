@@ -15,7 +15,7 @@ Les deux parties du cahier des charges ont été traitées dans le même projet.
 
 ## Commandes réellement exécutées
 
-Depuis `C:\Users\LKDM-\HomeLinkEnergy` avec PowerShell :
+Depuis la racine du dépôt, avec PowerShell :
 
 ```powershell
 .\gradlew.bat build test --console=plain
