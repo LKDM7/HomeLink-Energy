@@ -28,6 +28,8 @@ import net.minecraft.world.phys.Vec3;
  */
 public final class HydroClientEffects {
     private static final double SOUND_RANGE = 24, PARTICLE_RANGE = 32;
+    /** The rotor fan is a close-range detail: silent beyond ten blocks. */
+    private static final double FAN_RANGE = 10;
     private static final Map<BlockEntity, Loop> PUMP_LOOPS = new WeakHashMap<>();
     private static final Map<BlockEntity, Loop[]> TURBINE_LOOPS = new WeakHashMap<>();
     private static final Map<BlockEntity, Boolean> PRODUCING = new WeakHashMap<>();
@@ -37,6 +39,11 @@ public final class HydroClientEffects {
     public static void install() {
         HydroPumpBlockEntity.clientTicker = HydroClientEffects::pump;
         HydroTurbineBlockEntity.clientTicker = HydroClientEffects::turbine;
+    }
+
+    private static double distanceSqr(Vec3 point) {
+        var player = Minecraft.getInstance().player;
+        return player == null ? Double.MAX_VALUE : player.distanceToSqr(point);
     }
 
     private static double distanceSqr(BlockEntity entity) {
@@ -75,10 +82,10 @@ public final class HydroClientEffects {
                 loops[1] = new Loop(EnergyRegistries.HYDRO_DISCHARGE_SOUND.get(), turbine, turbine::clientFlow, 0.5f, 1f);
                 Minecraft.getInstance().getSoundManager().play(loops[1]);
             }
-            if (loops[2] == null || loops[2].isStopped()) {
-                // Fan whir at the rotor: slow spin-up and coast-down, pitch rising with the rotor speed.
-                loops[2] = new Loop(EnergyRegistries.HYDRO_FAN_SOUND.get(), turbine, turbine::clientFlow, 0.22f, 0.75f, 0.03f, 0.6f,
-                        local(turbine.getBlockPos(), turbine.facing(), 1.0, 1.0, 1.55));
+            Vec3 rotor = local(turbine.getBlockPos(), turbine.facing(), 1.0, 1.0, 1.55);
+            if ((loops[2] == null || loops[2].isStopped()) && distanceSqr(rotor) < FAN_RANGE * FAN_RANGE) {
+                // Fan whir at the rotor: slow spin-up and coast-down, pitch rising with the rotor speed, 10 % quieter than first tuned.
+                loops[2] = new Loop(EnergyRegistries.HYDRO_FAN_SOUND.get(), turbine, turbine::clientFlow, 0.198f, 0.75f, 0.03f, 0.6f, rotor, FAN_RANGE);
                 Minecraft.getInstance().getSoundManager().play(loops[2]);
             }
         }
@@ -122,10 +129,12 @@ public final class HydroClientEffects {
         private final BlockEntity source;
         private final DoubleSupplier intensity;
         private final float base, basePitch, rate, pitchSpan;
+        /** Audible distance in blocks with a linear fade to silence, or 0 for vanilla attenuation. */
+        private final double range;
         private float fade;
 
         Loop(SoundEvent event, BlockEntity source, DoubleSupplier intensity, float base, float pitch) {
-            this(event, source, intensity, base, pitch, 0.1f, 0, Vec3.atCenterOf(source.getBlockPos()));
+            this(event, source, intensity, base, pitch, 0.1f, 0, Vec3.atCenterOf(source.getBlockPos()), 0);
         }
 
         /**
@@ -133,7 +142,7 @@ public final class HydroClientEffects {
          * @param pitchSpan extra pitch at full intensity
          * @param position where the sound comes from
          */
-        Loop(SoundEvent event, BlockEntity source, DoubleSupplier intensity, float base, float pitch, float rate, float pitchSpan, Vec3 position) {
+        Loop(SoundEvent event, BlockEntity source, DoubleSupplier intensity, float base, float pitch, float rate, float pitchSpan, Vec3 position, double range) {
             super(event, SoundSource.BLOCKS, SoundInstance.createUnseededRandom());
             this.source = source;
             this.intensity = intensity;
@@ -145,6 +154,9 @@ public final class HydroClientEffects {
             this.basePitch = pitch;
             this.rate = rate;
             this.pitchSpan = pitchSpan;
+            this.range = range;
+            // A custom range replaces vanilla attenuation, whose quietest reach is 16 blocks.
+            if (range > 0) this.attenuation = Attenuation.NONE;
             this.x = position.x;
             this.y = position.y;
             this.z = position.z;
@@ -156,7 +168,13 @@ public final class HydroClientEffects {
             boolean gone = source.isRemoved() || source.getLevel() != Minecraft.getInstance().level
                     || distanceSqr(source) > SOUND_RANGE * SOUND_RANGE || !HydroClientConfig.sounds();
             if (gone || (target <= 0 && fade < 0.02f)) { stop(); return; }
-            volume = Math.max(0.01f, base * fade * HydroClientConfig.volume());
+            double falloff = 1;
+            if (range > 0) {
+                double distance = Math.sqrt(distanceSqr(new Vec3(x, y, z)));
+                if (distance >= range) { stop(); return; }
+                falloff = 1 - distance / range;
+            }
+            volume = Math.max(0.001f, (float) (base * fade * HydroClientConfig.volume() * falloff));
             pitch = basePitch + pitchSpan * fade;
         }
 

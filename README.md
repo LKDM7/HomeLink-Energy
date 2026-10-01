@@ -78,7 +78,7 @@ L'énergie et les fractions restent dans la sauvegarde du bloc, **jamais dans l'
 
 ### Câbles et HomeCore déjà présents
 
-Les câbles sont des pistes fines, posées comme de la redstone sur le sol, les murs et le plafond. Une face solide ou un port HE sert de support. On peut ajouter plusieurs faces dans une même case pour former une jonction intérieure ; chaque face consomme un câble. Les pistes se raccordent aussi autour d'une arête extérieure. Retirer un support détache la face correspondante et rend son câble. Le câble ne fournit aucun signal redstone.
+Les câbles sont des pistes fines, posées comme de la redstone sur le sol, les murs et le plafond. Une face solide ou un port HE sert de support. On peut ajouter plusieurs faces dans une même case pour former une jonction intérieure ; chaque face consomme un câble. Les pistes se raccordent aussi autour d'une arête extérieure. Retirer un support détache la face correspondante et rend son câble. Le câble ne fournit aucun signal redstone. Un câble posé sur une face d'un bloc plein alimente aussi la machine posée sur la face opposée de ce bloc : par exemple, un câble sous un bloc de roche alimente la station posée dessus. Un seul bloc ordinaire est traversé (jamais une machine ni un câble).
 
 Les câbles relient les sorties latérales/inférieures des panneaux et toutes les faces des batteries. Le sommet solaire n'est pas un port. Les câbles ne stockent rien et ne convertissent aucune unité. Les faces d'une même case forment une jonction commune ; deux pistes adjacentes sur des plans distincts ne se raccordent pas automatiquement. Le graphe est recalculé lorsqu'un câble ou un voisin change ; les tronçons déchargés sont retirés.
 

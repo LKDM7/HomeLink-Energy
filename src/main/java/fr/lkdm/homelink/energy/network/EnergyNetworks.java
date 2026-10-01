@@ -113,18 +113,10 @@ public final class EnergyNetworks {
                     if (!cables.contains(next) && !machines.containsKey(next) && level.isLoaded(next)
                             && fr.lkdm.homelink.energy.block.CopperEnergyCableBlock.connects(level, cable, direction)
                             && level.getCapability(HeCapabilities.PORT, next, direction.getOpposite()) != null) {
-                        var state = level.getBlockState(next);
-                        BlockPos machine = state.getBlock() instanceof fr.lkdm.homelink.energy.block.SolarPanelBlock
-                                ? fr.lkdm.homelink.energy.block.SolarPanelBlock.controllerPos(next, state)
-                                : state.getBlock() instanceof fr.lkdm.homelink.energy.block.WindTurbineBlock
-                                ? fr.lkdm.homelink.energy.block.WindTurbineBlock.controllerPos(next, state)
-                                : state.getBlock() instanceof fr.lkdm.homelink.energy.block.HydroMachineBlock
-                                ? fr.lkdm.homelink.energy.block.HydroMachineBlock.controllerPos(next, state)
-                                : state.getBlock() instanceof fr.lkdm.homelink.energy.block.BatteryBlock
-                                ? fr.lkdm.homelink.energy.block.BatteryBlock.controllerPos(next, state) : next;
-                        machines.putIfAbsent(machine.immutable(), new Access(next.immutable(), direction.getOpposite()));
+                        machines.putIfAbsent(controllerOf(next), new Access(next.immutable(), direction.getOpposite()));
                     }
                 }
+                throughSupports(cable, machines);
             }
             boolean tooLarge = component.size() + machines.size() > limit;
             List<EnergyNetwork.Endpoint> endpoints = new ArrayList<>();
@@ -156,6 +148,43 @@ public final class EnergyNetworks {
                 player.displayClientMessage(Component.translatable("message.homelink_energy.network_too_large", limit), true);
             }
         }
+    }
+
+    /**
+     * A trace mounted on a full block also feeds the port on the opposite face of that block: a cable under a
+     * stone block powers the machine standing on it. Only one plain block is crossed, never a machine or a cable.
+     */
+    private void throughSupports(BlockPos cable, Map<BlockPos, Access> machines) {
+        var cableState = level.getBlockState(cable);
+        for (Direction face : Direction.values()) {
+            if (!fr.lkdm.homelink.energy.block.CopperEnergyCableBlock.hasFace(cableState, face)) continue;
+            BlockPos support = cable.relative(face), target = support.relative(face);
+            if (cables.contains(support) || cables.contains(target) || !level.isLoaded(support) || !level.isLoaded(target)) continue;
+            Direction mounted = face.getOpposite();
+            if (!level.getBlockState(support).isFaceSturdy(level, support, mounted)
+                    || level.getCapability(HeCapabilities.PORT, support, mounted) != null
+                    || level.getCapability(HeCapabilities.PORT, target, mounted) == null) continue;
+            machines.putIfAbsent(controllerOf(target), new Access(target.immutable(), mounted));
+        }
+    }
+
+    /** @return the position that identifies the machine owning {@code pos}, so that a multiblock counts once */
+    private BlockPos controllerOf(BlockPos pos) {
+        var state = level.getBlockState(pos);
+        BlockPos machine = state.getBlock() instanceof fr.lkdm.homelink.energy.block.SolarPanelBlock
+                ? fr.lkdm.homelink.energy.block.SolarPanelBlock.controllerPos(pos, state)
+                : state.getBlock() instanceof fr.lkdm.homelink.energy.block.WindTurbineBlock
+                ? fr.lkdm.homelink.energy.block.WindTurbineBlock.controllerPos(pos, state)
+                : state.getBlock() instanceof fr.lkdm.homelink.energy.block.HydroMachineBlock
+                ? fr.lkdm.homelink.energy.block.HydroMachineBlock.controllerPos(pos, state)
+                : state.getBlock() instanceof fr.lkdm.homelink.energy.block.BatteryBlock
+                ? fr.lkdm.homelink.energy.block.BatteryBlock.controllerPos(pos, state) : pos;
+        return machine.immutable();
+    }
+
+    /** A block changed two cells away from a cable: a machine may have appeared or left behind its support. */
+    public void farNeighborChanged(BlockPos pos) {
+        for (Direction direction : Direction.values()) if (cables.contains(pos.relative(direction, 2))) { markDirty(pos); return; }
     }
 
     /** Cell and face through which a cable reaches a machine port; a port may exist on one face of one cell only. */

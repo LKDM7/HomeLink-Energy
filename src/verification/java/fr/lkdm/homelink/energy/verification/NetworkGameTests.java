@@ -236,4 +236,33 @@ public final class NetworkGameTests {
         check(helper, HomeLinkEnergy.id("copper_energy_cable").equals(net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(EnergyRegistries.COPPER_ENERGY_CABLE.get())), "Cable id");
         helper.succeed();
     }
+
+    /** A trace under a stone block powers the machine standing on that block: one plain block is crossed. */
+    @GameTest(template = "empty", batch = "net_through", timeoutTicks = 100)
+    public static void cableFeedsMachineThroughSupportBlock(GameTestHelper helper) {
+        var level = helper.getLevel();
+        BlockPos cable = helper.absolutePos(new BlockPos(2, 3, 2));
+        level.setBlockAndUpdate(cable.above(), Blocks.STONE.defaultBlockState());
+        var ceiling = EnergyRegistries.COPPER_ENERGY_CABLE.get().defaultBlockState()
+                .setValue(CopperEnergyCableBlock.FACES.get(Direction.DOWN), false).setValue(CopperEnergyCableBlock.FACES.get(Direction.UP), true);
+        level.setBlockAndUpdate(cable, ceiling);
+        BatteryBlockEntity battery = place(helper, EnergyRegistries.BATTERY_1.get(), new BlockPos(3, 3, 2));
+        charge(helper, battery, 10_000);
+        TestConsumer consumer = place(helper, EnergyValidation.CONSUMER.get(), new BlockPos(2, 5, 2));
+        // Beside the support block rather than on its opposite face: never fed.
+        TestConsumer beside = place(helper, EnergyValidation.CONSUMER.get(), new BlockPos(2, 4, 1));
+        helper.runAfterDelay(40, () -> {
+            check(helper, level.getBlockState(cable).is(EnergyRegistries.COPPER_ENERGY_CABLE.get()), "Ceiling cable dropped");
+            check(helper, consumer.received > 0, "No HE crossed the stone block");
+            check(helper, beside.received == 0, "A machine beside the support was fed");
+            check(helper, EnergyNetworks.connection(level, consumer.getBlockPos()) == EnergyNetworks.Connection.CONNECTED, "Machine on the block not connected");
+            long before = consumer.received;
+            level.setBlockAndUpdate(cable.above(2), Blocks.AIR.defaultBlockState());
+            helper.runAfterDelay(10, () -> {
+                check(helper, EnergyNetworks.connection(level, cable.above(2)) == EnergyNetworks.Connection.NONE, "Removed machine still connected");
+                check(helper, consumer.received == before, "Removed machine still receives");
+                helper.succeed();
+            });
+        });
+    }
 }

@@ -20,6 +20,12 @@ public final class NetworkEvents {
         if (event.getLevel() instanceof ServerLevel level) EnergyNetworks.existing(level).ifPresent(EnergyNetworks::tick);
     }
 
+    /** Machines placed or removed on the far side of a cable support are not neighbours of the cable itself. */
+    @SubscribeEvent
+    public static void farNeighbor(net.neoforged.neoforge.event.level.BlockEvent.NeighborNotifyEvent event) {
+        if (event.getLevel() instanceof ServerLevel level) EnergyNetworks.existing(level).ifPresent(networks -> networks.farNeighborChanged(event.getPos()));
+    }
+
     @SubscribeEvent
     public static void unload(LevelEvent.Unload event) {
         if (event.getLevel() instanceof ServerLevel level) EnergyNetworks.unload(level);

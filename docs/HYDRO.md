@@ -175,6 +175,6 @@ Captures en jeu et rapports : [validation/hydro-industrial](validation/hydro-ind
 ## Limites connues
 
 - Pas de partage entre turbines, pas de simulation de volume, de pression, de fuite ni d'usure.
-- Sons construits à partir de sons vanilla faute d'enregistrements dédiés : pompe (bulles), ronronnement (balise), ventilateur du rotor (souffle d'élytre aigu, montée et ralentissement progressifs, hauteur liée à la vitesse), évacuation (eau), démarrage/arrêt (piston).
+- Sons construits à partir de sons vanilla faute d'enregistrements dédiés : pompe (bulles), ronronnement (balise), ventilateur du rotor (souffle d'élytre aigu, montée et ralentissement progressifs, hauteur liée à la vitesse, audible à 10 blocs au plus avec un fondu linéaire), évacuation (eau), démarrage/arrêt (piston).
 - Dimensions autres que l'Overworld désactivées par défaut et non validées.
 - Validation visuelle multijoueur (deux clients) et intégration Dashboard agrégée : manuelles / non réalisées, voir `docs/VALIDATION.md`.
