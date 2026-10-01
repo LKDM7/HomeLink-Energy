@@ -1,4 +1,4 @@
-# HomeLink Energy — développement 0.4.1
+# HomeLink Energy — développement 0.5.0
 
 Minecraft **1.21.1**, **NeoForge 21.1.251**, **Java 21**. Production solaire, éolienne et hydraulique renouvelable en **HE**, stockage et transfert par le réseau énergétique commun. Les appareils exposent leurs métriques et événements via l'API publique HomeCore.
 
@@ -32,11 +32,15 @@ La branche Hydro ajoute trois **Pompes Hydro** (1×1×1, 2×1×1, 2×1×2), la *
 
 Détails, repère local des ports, états, configuration `[hydro]` et dépannage : [docs/HYDRO.md](docs/HYDRO.md). Bilan chiffré : [équilibrage](docs/ENERGY_BALANCE.md#hydro--valeurs-de-départ-et-comparaison-1er-octobre-2026). Le widget agrégé du Dashboard n'est pas modifié (voir les limites).
 
+## JEI et REI
+
+Avec JEI (19.0 ou plus récent) ou REI (16.0 ou plus récent), chaque objet du mod a une page d'information (onglet « i » de JEI, « Information » de REI) qui résume production, capacités et règles de pose, en français et en anglais. Les recettes de fabrication s'y affichent comme les autres. Ces deux mods restent facultatifs et côté client.
+
 ## Installer
 
-Copier `homelink_energy-0.4.1.jar` et `homecore-1.12.0.jar` du dossier `build/release/` dans `mods/`, côté client et serveur. Installer NeoForge pour Minecraft 1.21.1 et utiliser Java 21. Ne pas installer deux versions de HomeCore.
+Copier `homelink_energy-0.5.0.jar` et `homecore-1.13.0.jar` du dossier `build/release/` dans `mods/`, côté client et serveur. Installer NeoForge pour Minecraft 1.21.1 et utiliser Java 21. Ne pas installer deux versions de HomeCore.
 
-HomeCore **1.12.0** (API publique **1.8.0**) est obligatoire et reste un JAR séparé. La dépendance publiée est explicite dans `gradle.properties`. Pour travailler sur les deux projets, activer le composite avec `-PuseLocalDependencies=true` et un checkout voisin de même version ; aucun `publishToMavenLocal` n'est nécessaire.
+HomeCore **1.13.0** (API publique **1.8.0**) est obligatoire et reste un JAR séparé. La dépendance publiée est explicite dans `gradle.properties`. Pour travailler sur les deux projets, activer le composite avec `-PuseLocalDependencies=true` et un checkout voisin de même version ; aucun `publishToMavenLocal` n'est nécessaire.
 
 ## Utiliser
 
@@ -115,7 +119,7 @@ IDs HomeCore vérifiés : `homecore:homelink_circuit_board`, `homecore:homelink_
 
 ## Construire et vérifier
 
-Pour développer localement, placer HomeCore 1.12.0 dans `../HomeCore` ou préciser `-Phomecore_dir=<chemin>`. Le composite utilise ces sources avec contrôle de version. Après publication du package, `-PuseLocalDependencies=false` utilise la dépendance Maven exacte, avec les identifiants GitHub Packages décrits dans la documentation HomeCore. Aucun `publishToMavenLocal` n'est nécessaire.
+Pour développer localement, placer HomeCore 1.13.0 dans `../HomeCore` ou préciser `-Phomecore_dir=<chemin>`. Le composite utilise ces sources avec contrôle de version. Après publication du package, `-PuseLocalDependencies=false` utilise la dépendance Maven exacte, avec les identifiants GitHub Packages décrits dans la documentation HomeCore. Aucun `publishToMavenLocal` n'est nécessaire.
 
 ```powershell
 # Depuis la racine ; JAVA_HOME doit désigner un JDK 21.
