@@ -55,7 +55,7 @@ public final class ClientSmoke {
                 return;
             }
             if (failure!=null) throw new IllegalStateException("Server fixture failed",failure);
-            if (System.nanoTime()-start>180_000_000_000L) throw new IllegalStateException("Client timeout stage="+stage);
+            if (System.nanoTime()-start>480_000_000_000L) throw new IllegalStateException("Client timeout stage="+stage);
             if (stage==1 && mc.player!=null && mc.getSingleplayerServer()!=null) {
                 stage=10; age=0;
                 var id=mc.player.getUUID(); var server=mc.getSingleplayerServer();
@@ -180,8 +180,9 @@ public final class ClientSmoke {
             } else if(stage==25 && mc.screen==null) {
                 aimWind(mc);
                 if(++age<40) return;
-                capture(mc,"wind-obstacle");
-                HomeLinkEnergy.LOGGER.info("ENERGY_SMOKE_OK language={} models=10 panelRate=true batteryCharge=true menuDistance=true windSpeed=true windMenu=true windOverlay=true obstruction=true",mc.options.languageCode);
+                capture(mc,"wind-obstacle"); stage=40; HydroClientSmoke.begin(mc,batteryPos.offset(60,0,0));
+            } else if(stage==40 && HydroClientSmoke.tick(mc)) {
+                HomeLinkEnergy.LOGGER.info("ENERGY_SMOKE_OK language={} models=15 panelRate=true batteryCharge=true menuDistance=true windSpeed=true windMenu=true windOverlay=true obstruction=true hydroFlow=true hydroMenus=true hydroWaterZone=true hydroOutlet=true",mc.options.languageCode);
                 stop(mc);
             }
         } catch(Throwable t) { HomeLinkEnergy.LOGGER.error("ENERGY_SMOKE_FAILED",t); stop(mc); }
@@ -198,12 +199,12 @@ public final class ClientSmoke {
         for (var id : java.util.List.of(fr.lkdm.homelink.energy.client.CableRenderer.TRACE,
                 fr.lkdm.homelink.energy.client.CableRenderer.CORNER))
             checkCableBack(mc.getModelManager().getModel(id), null, Direction.DOWN);
-        for(String id:new String[]{"solar_panel_1","solar_panel_2","solar_panel_3","wind_turbine_1","wind_turbine_2","wind_turbine_3","battery_1","battery_2","battery_3","copper_energy_cable"}) {
+        for(String id:new String[]{"solar_panel_1","solar_panel_2","solar_panel_3","wind_turbine_1","wind_turbine_2","wind_turbine_3","battery_1","battery_2","battery_3","copper_energy_cable","hydro_pump_1","hydro_pump_2","hydro_pump_3","hydro_pipe","hydro_turbine"}) {
             var model=mc.getModelManager().getModel(new ModelResourceLocation(HomeLinkEnergy.id(id),"inventory"));
             if(model==mc.getModelManager().getMissingModel() || model.getParticleIcon(net.neoforged.neoforge.client.model.data.ModelData.EMPTY).contents().name().getPath().equals("missingno")) throw new IllegalStateException("Missing model/texture "+id);
             if(!I18n.exists("block.homelink_energy."+id)) throw new IllegalStateException("Missing translation "+id);
         }
-        for(var id:java.util.List.of(fr.lkdm.homelink.energy.client.WindTurbineRenderer.TOWER,fr.lkdm.homelink.energy.client.WindTurbineRenderer.NACELLE,fr.lkdm.homelink.energy.client.WindTurbineRenderer.NACELLE_2,fr.lkdm.homelink.energy.client.WindTurbineRenderer.NACELLE_3,fr.lkdm.homelink.energy.client.WindTurbineRenderer.BLADE,fr.lkdm.homelink.energy.client.WindTurbineRenderer.HUB,fr.lkdm.homelink.energy.client.CableRenderer.TRACE,fr.lkdm.homelink.energy.client.CableRenderer.CORNER))
+        for(var id:java.util.List.of(fr.lkdm.homelink.energy.client.WindTurbineRenderer.TOWER,fr.lkdm.homelink.energy.client.WindTurbineRenderer.NACELLE,fr.lkdm.homelink.energy.client.WindTurbineRenderer.NACELLE_2,fr.lkdm.homelink.energy.client.WindTurbineRenderer.NACELLE_3,fr.lkdm.homelink.energy.client.WindTurbineRenderer.BLADE,fr.lkdm.homelink.energy.client.WindTurbineRenderer.HUB,fr.lkdm.homelink.energy.client.CableRenderer.TRACE,fr.lkdm.homelink.energy.client.CableRenderer.CORNER,fr.lkdm.homelink.energy.client.HydroTurbineRenderer.HUB,fr.lkdm.homelink.energy.client.HydroTurbineRenderer.BLADE,fr.lkdm.homelink.energy.client.HydroTurbineRenderer.LOUVER))
             if(mc.getModelManager().getModel(id)==mc.getModelManager().getMissingModel()) throw new IllegalStateException("Missing rotor model "+id);
     }
     private static void checkCableBack(net.minecraft.client.resources.model.BakedModel model,
@@ -252,7 +253,7 @@ public final class ClientSmoke {
             }catch(Throwable t){failure=t;}
         });
     }
-    private static void click(Minecraft mc,String key) {
+    static void click(Minecraft mc,String key) {
         var button=mc.screen.children().stream().filter(c->c instanceof net.minecraft.client.gui.components.Button)
                 .map(c->(net.minecraft.client.gui.components.Button)c).filter(b->b.getMessage().getString().equals(I18n.get(key))).findFirst().orElseThrow();
         if(!button.active) throw new IllegalStateException("Inactive wind button "+key);
@@ -289,7 +290,7 @@ public final class ClientSmoke {
         player.getAbilities().flying=true;player.onUpdateAbilities();
         player.teleportTo(level,origin.getX()-3.5,origin.getY()+5.5,origin.getZ()+12.5,-138,28);
     }
-    private static void capture(Minecraft mc,String name) {
+    static void capture(Minecraft mc,String name) {
         Screenshot.grab(mc.gameDirectory,"energy-"+name+"-"+mc.options.languageCode+".png",mc.getMainRenderTarget(),message->HomeLinkEnergy.LOGGER.info("{}",message.getString()));
     }
     private static void stop(Minecraft mc) {

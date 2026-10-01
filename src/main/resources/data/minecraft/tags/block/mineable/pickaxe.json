@@ -1,14 +1,19 @@
 {
-    "values":  [
-                   "homelink_energy:solar_panel_1",
-                   "homelink_energy:solar_panel_2",
-                   "homelink_energy:solar_panel_3",
-                   "homelink_energy:battery_1",
-                   "homelink_energy:battery_2",
-                   "homelink_energy:battery_3",
-                   "homelink_energy:copper_energy_cable",
-                   "homelink_energy:wind_turbine_1",
-                   "homelink_energy:wind_turbine_2",
-                   "homelink_energy:wind_turbine_3"
-               ]
+  "values": [
+    "homelink_energy:solar_panel_1",
+    "homelink_energy:solar_panel_2",
+    "homelink_energy:solar_panel_3",
+    "homelink_energy:battery_1",
+    "homelink_energy:battery_2",
+    "homelink_energy:battery_3",
+    "homelink_energy:copper_energy_cable",
+    "homelink_energy:wind_turbine_1",
+    "homelink_energy:wind_turbine_2",
+    "homelink_energy:wind_turbine_3",
+    "homelink_energy:hydro_pump_1",
+    "homelink_energy:hydro_pump_2",
+    "homelink_energy:hydro_pump_3",
+    "homelink_energy:hydro_pipe",
+    "homelink_energy:hydro_turbine"
+  ]
 }

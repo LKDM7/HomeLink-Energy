@@ -1,6 +1,6 @@
-# HomeLink Energy — développement 0.3.0
+# HomeLink Energy — développement 0.4.0
 
-Minecraft **1.21.1**, **NeoForge 21.1.251**, **Java 21**. Production solaire et éolienne renouvelable en **HE**, stockage et transfert par le réseau énergétique commun. Les appareils exposent leurs métriques et événements via l'API publique HomeCore.
+Minecraft **1.21.1**, **NeoForge 21.1.251**, **Java 21**. Production solaire, éolienne et hydraulique renouvelable en **HE**, stockage et transfert par le réseau énergétique commun. Les appareils exposent leurs métriques et événements via l'API publique HomeCore.
 
 ## Wind Energy — énergie éolienne
 
@@ -20,11 +20,23 @@ Les métriques HomeCore utilisent un seul type `homelink_energy:wind_turbine`. L
 
 Résultats et limites : [validation éolienne](docs/WIND_VALIDATION.md), [équilibrage](docs/ENERGY_BALANCE.md), [fichiers changés](docs/WIND_FILES.md). La validation multijoueur visuelle reste manuelle.
 
+## Hydro — pompes, conduites et turbine
+
+La branche Hydro ajoute trois **Pompes Hydro** (1×1×1, 2×1×1, 2×1×2), la **Conduite Hydro** (gros conduit 10/16 à brides 14/16) et une seule **Turbine Hydro** de **2×2×2 blocs**. Chaîne : eau du monde → pompe → conduites → turbine → HE → câbles et batteries existants. Les pompes ne consomment ni HE ni carburant et **ne retirent jamais d'eau** : l'eau est une condition de fonctionnement, comme le soleil ou le vent. Le rejet d'eau à l'avant de la turbine est purement visuel ; aucun bloc d'eau n'est posé.
+
+- Poser la pompe en regardant l'eau : l'admission (grille) fait face au bassin. Fenêtre d'eau devant l'admission : **3×3×2 / 5×5×2 / 7×7×3** sources pour 100 %, minimum 25 %. **Voir la zone d'eau** l'affiche.
+- Débits : **1 / 3 / 12 DH/t** (débit abstrait). La turbine utilise au plus **12 DH/t** et produit au plus **48 000 HE par 24 000 ticks (2 HE/t)** ; Pompe I : 0,167 HE/t, Pompe II : 0,5 HE/t, Pompe III : 2 HE/t, jour et nuit, sans bonus de météo ni de hauteur.
+- Ports : sortie hydraulique **sur le dessus de la case maître** de la pompe ; entrée Hydro **en haut à l'arrière gauche** de la turbine ; sortie HE sur le **raccord cuivre** du côté bas arrière droit ; les deux cases devant le bas de la façade doivent rester libres (air ou eau), sinon **Évacuation obstruée**.
+- Circuit : 1 à 4 pompes, **une seule turbine**, 512 conduites au plus. Deux turbines sur un circuit : les deux s'arrêtent. Les conduites ne se relient jamais aux câbles HE ni à l'irrigation Farm.
+- HomeCore : types `homelink_energy:hydro_pump` et `homelink_energy:hydro_turbine`, interrupteur, renommage, rattachement HomeNetwork, métriques et événements de transition. Réseau hydraulique, réseau HE et HomeNetwork restent trois choses distinctes.
+
+Détails, repère local des ports, états, configuration `[hydro]` et dépannage : [docs/HYDRO.md](docs/HYDRO.md). Bilan chiffré : [équilibrage](docs/ENERGY_BALANCE.md#hydro--valeurs-de-départ-et-comparaison-1er-octobre-2026). Le widget agrégé du Dashboard n'est pas modifié (voir les limites).
+
 ## Installer
 
-Copier `homelink_energy-0.3.0.jar` et `homecore-1.11.0.jar` du dossier `build/release/` dans `mods/`, côté client et serveur. Installer NeoForge pour Minecraft 1.21.1 et utiliser Java 21. Ne pas installer deux versions de HomeCore.
+Copier `homelink_energy-0.4.0.jar` et `homecore-1.12.0.jar` du dossier `build/release/` dans `mods/`, côté client et serveur. Installer NeoForge pour Minecraft 1.21.1 et utiliser Java 21. Ne pas installer deux versions de HomeCore.
 
-HomeCore **1.11.0** (API publique **1.7.0**) est obligatoire et reste un JAR séparé. La dépendance publiée est explicite dans `gradle.properties`. Pour travailler sur les deux projets, activer le composite avec `-PuseLocalDependencies=true` et un checkout voisin de même version ; aucun `publishToMavenLocal` n'est nécessaire.
+HomeCore **1.12.0** (API publique **1.8.0**) est obligatoire et reste un JAR séparé. La dépendance publiée est explicite dans `gradle.properties`. Pour travailler sur les deux projets, activer le composite avec `-PuseLocalDependencies=true` et un checkout voisin de même version ; aucun `publishToMavenLocal` n'est nécessaire.
 
 ## Utiliser
 
@@ -47,7 +59,7 @@ Les anciennes batteries s'agrandissent automatiquement si l'emprise est vide, en
 | Battery II | aucune | 120 000 HE | 32 HE/t dans chaque sens |
 | Battery III | aucune | 320 000 HE | 128 HE/t dans chaque sens |
 
-Les plafonds des batteries s'appliquent à l'ensemble des faces et des parties : une seule capacité et un seul budget de charge/décharge par batterie. Le réseau compte une batterie une seule fois, même si plusieurs parties sont raccordées. Une batterie commence vide et ne s'autodécharge pas. L'onglet créatif HomeLink Energy regroupe les dix blocs.
+Les plafonds des batteries s'appliquent à l'ensemble des faces et des parties : une seule capacité et un seul budget de charge/décharge par batterie. Le réseau compte une batterie une seule fois, même si plusieurs parties sont raccordées. Une batterie commence vide et ne s'autodécharge pas. L'onglet créatif HomeLink Energy regroupe les quinze blocs.
 
 ### Soleil et temps
 
@@ -93,12 +105,17 @@ Toutes sont façonnées à la table vanilla, avec les composants HomeCore fabriq
 | 1 batterie II | `OMO / CBC / ORO` | O lingot or ×4 ; M Microprocessor ×1 ; C lingot cuivre ×2 ; B batterie I ×1 ; R bloc redstone ×1 |
 | 1 batterie III | `DOD / MBM / CKC` | D diamant ×2 ; O bloc or ×1 ; M Microprocessor ×2 ; B batterie II ×1 ; C bloc cuivre ×2 ; K Control Module ×1 |
 | 8 câbles cuivre | `CCC / WRW / CCC` | C lingot cuivre ×6 ; W laine (toute couleur) ×2 ; R redstone ×1 |
+| 4 conduites Hydro | `ICI / I.I / ICI` | I lingot fer ×6 ; C lingot cuivre ×2 |
+| 1 pompe Hydro I | `IBI / CPC / IRI` | I lingot fer ×4 ; B Circuit Board ×1 ; C lingot cuivre ×2 ; P piston ×1 ; R redstone ×1 |
+| 1 pompe Hydro II | `GMG / CTC / IKI` | G lingot or ×2 ; M Microprocessor ×1 ; C lingot cuivre ×2 ; T pompe I ×1 ; I lingot fer ×2 ; K Control Module ×1 |
+| 1 pompe Hydro III | `DKD / GTG / IOI` | D diamant ×2 ; K Control Module ×1 ; G lingot or ×2 ; T pompe II ×1 ; I lingot fer ×2 ; O Communication Module ×1 |
+| 1 turbine Hydro | `IKI / PMP / COC` | I bloc fer ×2 ; K Control Module ×1 ; P piston ×2 ; M Microprocessor ×1 ; C bloc cuivre ×2 ; O Communication Module ×1 |
 
 IDs HomeCore vérifiés : `homecore:homelink_circuit_board`, `homecore:homelink_microprocessor`, `homecore:homelink_communication_module`, `homecore:homelink_control_module`.
 
 ## Construire et vérifier
 
-Pour développer localement, placer HomeCore 1.11.0 dans `../HomeCore` ou préciser `-Phomecore_dir=<chemin>`. Le composite utilise ces sources avec contrôle de version. Après publication du package, `-PuseLocalDependencies=false` utilise la dépendance Maven exacte, avec les identifiants GitHub Packages décrits dans la documentation HomeCore. Aucun `publishToMavenLocal` n'est nécessaire.
+Pour développer localement, placer HomeCore 1.12.0 dans `../HomeCore` ou préciser `-Phomecore_dir=<chemin>`. Le composite utilise ces sources avec contrôle de version. Après publication du package, `-PuseLocalDependencies=false` utilise la dépendance Maven exacte, avec les identifiants GitHub Packages décrits dans la documentation HomeCore. Aucun `publishToMavenLocal` n'est nécessaire.
 
 ```powershell
 # Depuis la racine ; JAVA_HOME doit désigner un JDK 21.

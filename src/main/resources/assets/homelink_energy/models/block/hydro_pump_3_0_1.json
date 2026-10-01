@@ -1,0 +1,23 @@
+{
+  "loader": "neoforge:obj",
+  "model": "homelink_energy:models/block/hydro_pump_3_0_1.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "emissive_ambient": false,
+  "flip_v": false,
+  "ambientocclusion": false,
+  "textures": {
+    "dark": "homelink_energy:block/solar_panel_bottom",
+    "paint": "homelink_energy:block/battery_top",
+    "copper": "homelink_energy:block/copper_energy_cable",
+    "gold": "homelink_energy:block/wind_brass",
+    "body": "homelink_energy:block/wind_graphite",
+    "blade": "homelink_energy:block/wind_blade",
+    "vent": "homelink_energy:block/wind_vent",
+    "accent": "homelink_energy:block/hydro_accent",
+    "screen": "homelink_energy:block/hydro_screen",
+    "intake": "homelink_energy:block/hydro_intake",
+    "label": "homelink_energy:block/hydro_label_3",
+    "particle": "homelink_energy:block/wind_graphite"
+  }
+}

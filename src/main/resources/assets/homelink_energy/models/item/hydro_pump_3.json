@@ -1,0 +1,85 @@
+{
+  "loader": "neoforge:obj",
+  "model": "homelink_energy:models/item/hydro_pump_3.obj",
+  "automatic_culling": false,
+  "shade_quads": true,
+  "emissive_ambient": false,
+  "flip_v": false,
+  "ambientocclusion": false,
+  "textures": {
+    "dark": "homelink_energy:block/solar_panel_bottom",
+    "paint": "homelink_energy:block/battery_top",
+    "copper": "homelink_energy:block/copper_energy_cable",
+    "gold": "homelink_energy:block/wind_brass",
+    "body": "homelink_energy:block/wind_graphite",
+    "blade": "homelink_energy:block/wind_blade",
+    "vent": "homelink_energy:block/wind_vent",
+    "accent": "homelink_energy:block/hydro_accent",
+    "screen": "homelink_energy:block/hydro_screen",
+    "intake": "homelink_energy:block/hydro_intake",
+    "label": "homelink_energy:block/hydro_label_3",
+    "particle": "homelink_energy:block/wind_graphite"
+  },
+  "display": {
+    "gui": {
+      "rotation": [
+        30,
+        225,
+        0
+      ],
+      "scale": [
+        0.625,
+        0.625,
+        0.625
+      ]
+    },
+    "ground": {
+      "translation": [
+        0,
+        3,
+        0
+      ],
+      "scale": [
+        0.25,
+        0.25,
+        0.25
+      ]
+    },
+    "fixed": {
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "thirdperson_righthand": {
+      "rotation": [
+        75,
+        45,
+        0
+      ],
+      "translation": [
+        0,
+        2.5,
+        0
+      ],
+      "scale": [
+        0.375,
+        0.375,
+        0.375
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        45,
+        0
+      ],
+      "scale": [
+        0.4,
+        0.4,
+        0.4
+      ]
+    }
+  }
+}

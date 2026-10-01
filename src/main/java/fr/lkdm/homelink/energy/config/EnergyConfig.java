@@ -69,6 +69,7 @@ public final class EnergyConfig {
                 .defineInRange("maxEnergyNetworkNodes", 1_024, 2, 65_536);
         builder.pop();
         WindConfig.define(builder);
+        HydroConfig.define(builder);
         SPEC = builder.build();
     }
 

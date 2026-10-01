@@ -32,6 +32,21 @@ public final class EnergyBlockItem extends BlockItem {
                     Formats.energy(battery.tier().capacity())).withStyle(ChatFormatting.GRAY));
             tooltip.add(Component.translatable("tooltip.homelink_energy.battery_rate",
                     Formats.energy(battery.tier().transferRate())).withStyle(ChatFormatting.GRAY));
+        } else if (getBlock() instanceof HydroPumpBlock pump) {
+            var p = fr.lkdm.homelink.energy.config.HydroConfig.parameters();
+            tooltip.add(Component.translatable("tooltip.homelink_energy.hydro_footprint", pump.width(), pump.height(), pump.depth()).withStyle(ChatFormatting.GOLD));
+            tooltip.add(Component.translatable("tooltip.homelink_energy.hydro_pump_flow", Formats.rate(p.pumpFlow(pump.tier()))).withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable("tooltip.homelink_energy.hydro_pump_window", p.windowWidth(pump.tier()), p.windowDistance(pump.tier()),
+                    p.windowDepth(pump.tier())).withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable("tooltip.homelink_energy.hydro_pump_conditions").withStyle(ChatFormatting.DARK_GRAY));
+        } else if (getBlock() instanceof HydroTurbineBlock turbine) {
+            var p = fr.lkdm.homelink.energy.config.HydroConfig.parameters();
+            tooltip.add(Component.translatable("tooltip.homelink_energy.hydro_footprint", turbine.width(), turbine.height(), turbine.depth()).withStyle(ChatFormatting.GOLD));
+            tooltip.add(Component.translatable("tooltip.homelink_energy.hydro_turbine_output", Formats.energy(p.heReference()),
+                    Formats.rate(p.turbineMaxFlow())).withStyle(ChatFormatting.GRAY));
+            tooltip.add(Component.translatable("tooltip.homelink_energy.hydro_turbine_conditions").withStyle(ChatFormatting.DARK_GRAY));
+        } else if (getBlock() instanceof HydroPipeBlock) {
+            tooltip.add(Component.translatable("tooltip.homelink_energy.hydro_pipe").withStyle(ChatFormatting.GRAY));
         } else if (getBlock() instanceof CopperEnergyCableBlock) {
             tooltip.add(Component.translatable("tooltip.homelink_energy.surface_cable").withStyle(ChatFormatting.GRAY));
         }

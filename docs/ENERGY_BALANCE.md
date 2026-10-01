@@ -81,3 +81,45 @@ Simulation déterministe du vrai WindState et du vrai moteur : graine **20260927
 | Météo mixte, hub normal | 1 738,43 | 6 953,73 | 16 225,38 | 8 689 | 36 488 | 4 391,65 |
 
 Le rapport complet contient aussi les minima, maxima et écarts-types des niveaux I/II : `validation/wind/wind-simulation.txt`. En clair et à hauteur normale, Wind III fournit ici moins que Solar III (20 000 HE), mais continue la nuit. Sous mauvais temps, le solaire tombe à 8 000 / 3 000 HE par cycle tandis que l'éolien bénéficie du bonus. Aucune constante n'a été modifiée à partir de ces résultats. La complémentarité et l'intérêt du stockage sont conservés ; ce n'est pas une étude de tous les consommateurs d'un modpack.
+
+## Hydro — valeurs de départ et comparaison (1er octobre 2026)
+
+Formule : `HE/t = turbineMaxHEPerReferencePeriod / 24000 × débit utilisé / turbineMaxFlow`, avec `débit utilisé = min(Σ débits des pompes, 12 DH/t)` et `débit d'une pompe = débit max × disponibilité de l'eau` (zéro sous 25 %). Aucun facteur d'heure, de météo, d'altitude ou de chute. Les périodes sont des ticks serveur exécutés.
+
+Essai déterministe exécuté (`HydroModelTest`, rapport `build/reports/hydro-periods.txt`) : 24 000 ticks, bassin complet, tampon vidé à chaque tick.
+
+| Installation | Cible HE / 24 000 ticks | Obtenu | HE/t |
+|---|---:|---:|---:|
+| 1 Pompe I | 4 000 | 3 999 | 0,1667 |
+| 1 Pompe II | 12 000 | 12 000 | 0,5 |
+| 1 Pompe III | 48 000 | 48 000 | 2,0 |
+| 3 Pompes I | 12 000 | 12 000 | 0,5 |
+| 2 Pompes II | 24 000 | 24 000 | 1,0 |
+| 4 Pompes II (plafond atteint) | 48 000 | 48 000 | 2,0 |
+| 2 Pompes III (plafond) | 48 000 | 48 000 | 2,0 |
+| 4 Pompes III (plafond) | 48 000 | 48 000 | 2,0 |
+| Pompe III, eau à 50 % | 24 000 | 24 000 (±1) | 1,0 |
+| Pompe III, eau à 25 % | 12 000 | 12 000 (±1) | 0,5 |
+| Pompe III, eau à 24 % | 0 | 0 | 0 |
+
+Le manque d'un HE pour la Pompe I vient du reliquat flottant (1/6 HE par tick) resté dans l'accumulateur, toujours dans `[0, 1)` : tolérance documentée de 1 HE, sans dérive (dix périodes : 40 000 ± 1). Les fractions ne sont jamais arrondies tick par tick.
+
+### Comparaison par niveau
+
+| Source (niveau III) | HE / 24 000 ticks | Variabilité | Emprise |
+|---|---:|---|---|
+| Solar III | 20 000 clair / 8 000 pluie / 3 000 orage | rien la nuit | 4 cases + ciel libre |
+| Wind III | 28 000 nominal ; moyenne simulée 14 921 (clair, hub normal) | vent, météo, altitude | 4 cases + mât 11 + rotor 7×7 libre |
+| Hydro (Pompe III + turbine) | 48 000 | constant, jour et nuit | 4 + 8 cases + conduites + bassin 7×7×3 (147 sources) |
+
+Coût direct de l'installation Hydro III, hors recettes HomeCore récursives : Pompe I → II → III (4 fers + 2 cuivres + piston + redstone + Circuit Board ; 2 ors + 2 cuivres + 2 fers + Microprocessor + Control Module ; 2 diamants + 2 ors + 2 fers + Control Module + Communication Module), turbine (2 blocs de fer, 2 blocs de cuivre, 2 pistons, Microprocessor, Control Module, Communication Module) et les conduites (6 fers + 2 cuivres pour 4). Le bassin de 147 sources doit être construit ou trouvé devant l'admission.
+
+### Ajustement du 1er octobre 2026 : Pompe III deux fois plus rapide
+
+Sur demande, la Pompe III remplit deux fois plus vite : `pumpFlow3` 6 → 12 DH/t, `turbineMaxFlow` 6 → 12 DH/t, `turbineMaxHEPerReferencePeriod` 24 000 → 48 000. Le rapport 4 000 HE par DH/t reste identique : les Pompes I et II gardent 4 000 et 12 000 HE par période. Effet secondaire assumé : une turbine plafonne désormais à 2 HE/t, atteignable aussi avec 4 Pompes II. Une Batterie I (40 000 HE) se remplit en 20 000 ticks (16 min 40) au lieu de 33 min 20. Les mondes existants gardent les anciennes valeurs dans `serverconfig/homelink_energy-server.toml` tant que ces trois lignes ne sont pas modifiées.
+
+### Lecture et recommandation (avant l'ajustement ci-dessus)
+
+Avec ces valeurs de départ, une installation Hydro complète fournit **plus que Solar III par cycle clair (+20 %)** et **environ 1,6 fois la moyenne simulée de Wind III**, sans interruption. Elle reste plafonnée à 1 HE/t par turbine, quel que soit le nombre de pompes, et demande une turbine de 8 blocs, un circuit et un grand bassin : sa densité par case occupée est nettement plus faible que celle d'un panneau. La batterie I (8 HE/t) absorbe sans peine la production d'une turbine.
+
+Les valeurs Solar et Wind n'ont pas été touchées. Si les essais en partie montrent qu'Hydro efface les autres sources, l'ajustement recommandé porte sur Hydro seul : `turbineMaxHEPerReferencePeriod = 18000` (0,75 HE/t, entre Wind III moyen et Solar III clair) ou `minimumWaterAvailability` plus élevé. Les consommations réelles de Farm, Quarry et Storage restent à confronter avec leurs interfaces : ce bilan n'est pas une étude de modpack. Les anciens exemples d'interface à 34 ou 38 HE/t ne correspondent à aucun équilibrage validé et ne sont pas repris.

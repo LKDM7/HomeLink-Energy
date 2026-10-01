@@ -23,10 +23,14 @@ public final class HomeLinkEnergy {
     public HomeLinkEnergy(IEventBus modBus, ModContainer container) {
         EnergyRegistries.register(modBus);
         container.registerConfig(ModConfig.Type.SERVER, EnergyConfig.SPEC);
+        container.registerConfig(ModConfig.Type.CLIENT, fr.lkdm.homelink.energy.config.HydroClientConfig.SPEC);
+        modBus.addListener((net.neoforged.fml.event.config.ModConfigEvent.Loading event) -> hydroConfigChanged(event.getConfig()));
+        modBus.addListener((net.neoforged.fml.event.config.ModConfigEvent.Reloading event) -> hydroConfigChanged(event.getConfig()));
         modBus.addListener(HomeLinkEnergy::registerCapabilities);
         NeoForge.EVENT_BUS.register(NetworkEvents.class);
         NeoForge.EVENT_BUS.register(fr.lkdm.homelink.energy.wind.WindClearance.class);
         NeoForge.EVENT_BUS.register(fr.lkdm.homelink.energy.wind.WindCommands.class);
+        NeoForge.EVENT_BUS.register(fr.lkdm.homelink.energy.hydro.HydroWatch.class);
         modBus.addListener(fr.lkdm.homelink.energy.network.EnergyPayloads::register);
         modBus.addListener((net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent event) ->
                 event.enqueueWork(fr.lkdm.homelink.energy.homelink.EnergyHomeCore::registerProviders));
@@ -36,6 +40,13 @@ public final class HomeLinkEnergy {
      *  @return namespaced identifier */
     public static ResourceLocation id(String path) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+    }
+
+    /** Hydro rates are re-read every tick; cached parameters and circuits built with old limits are dropped. */
+    private static void hydroConfigChanged(ModConfig config) {
+        if (config.getSpec() != EnergyConfig.SPEC) return;
+        fr.lkdm.homelink.energy.config.HydroConfig.reload();
+        fr.lkdm.homelink.energy.hydro.HydroNetworks.configChanged();
     }
 
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
@@ -51,5 +62,10 @@ public final class HomeLinkEnergy {
             var turbine = fr.lkdm.homelink.energy.block.WindTurbineBlock.controller(level, pos, state);
             return turbine == null ? null : turbine.port(side);
         }, EnergyRegistries.WIND_TURBINE_1.get(), EnergyRegistries.WIND_TURBINE_2.get(), EnergyRegistries.WIND_TURBINE_3.get());
+        // One HE output face on one cell; every query resolves to the same port of the master.
+        event.registerBlock(HeCapabilities.PORT, (level, pos, state, entity, side) -> {
+            var turbine = fr.lkdm.homelink.energy.block.HydroTurbineBlock.controller(level, pos, state);
+            return turbine == null ? null : turbine.port(state, side);
+        }, EnergyRegistries.HYDRO_TURBINE_BLOCK.get());
     }
 }

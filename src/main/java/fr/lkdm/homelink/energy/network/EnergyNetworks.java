@@ -98,7 +98,8 @@ public final class EnergyNetworks {
         for (BlockPos start : ordered) {
             if (!visited.add(start)) continue;
             Set<BlockPos> component = new HashSet<>();
-            Map<BlockPos, Direction> machines = new LinkedHashMap<>();
+            // Keyed by controller so that a multiblock counts once; the value is the cell and face the cable really touches.
+            Map<BlockPos, Access> machines = new LinkedHashMap<>();
             ArrayDeque<BlockPos> queue = new ArrayDeque<>();
             queue.add(start);
             while (!queue.isEmpty()) {
@@ -117,9 +118,11 @@ public final class EnergyNetworks {
                                 ? fr.lkdm.homelink.energy.block.SolarPanelBlock.controllerPos(next, state)
                                 : state.getBlock() instanceof fr.lkdm.homelink.energy.block.WindTurbineBlock
                                 ? fr.lkdm.homelink.energy.block.WindTurbineBlock.controllerPos(next, state)
+                                : state.getBlock() instanceof fr.lkdm.homelink.energy.block.HydroMachineBlock
+                                ? fr.lkdm.homelink.energy.block.HydroMachineBlock.controllerPos(next, state)
                                 : state.getBlock() instanceof fr.lkdm.homelink.energy.block.BatteryBlock
                                 ? fr.lkdm.homelink.energy.block.BatteryBlock.controllerPos(next, state) : next;
-                        machines.putIfAbsent(machine.immutable(), direction.getOpposite());
+                        machines.putIfAbsent(machine.immutable(), new Access(next.immutable(), direction.getOpposite()));
                     }
                 }
             }
@@ -129,7 +132,8 @@ public final class EnergyNetworks {
                 List<BlockPos> machinePositions = new ArrayList<>(machines.keySet());
                 machinePositions.sort(Comparator.comparingLong(BlockPos::asLong));
                 for (BlockPos machine : machinePositions) {
-                    var cache = BlockCapabilityCache.create(HeCapabilities.PORT, level, machine, machines.get(machine),
+                    Access access = machines.get(machine);
+                    var cache = BlockCapabilityCache.create(HeCapabilities.PORT, level, access.cell(), access.side(),
                             () -> true, () -> markDirty(machine));
                     endpoints.add(new EnergyNetwork.Endpoint(machine, cache::getCapability));
                 }
@@ -153,6 +157,9 @@ public final class EnergyNetworks {
             }
         }
     }
+
+    /** Cell and face through which a cable reaches a machine port; a port may exist on one face of one cell only. */
+    private record Access(BlockPos cell, Direction side) { }
 
     /** @return current networks */
     public List<EnergyNetwork> networks() { return networks; }

@@ -1,0 +1,65 @@
+newmtl dark
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd #dark
+
+newmtl paint
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd #paint
+
+newmtl copper
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd #copper
+
+newmtl gold
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd #gold
+
+newmtl body
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd #body
+
+newmtl blade
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd #blade
+
+newmtl vent
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd #vent
+
+newmtl accent
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd #accent
+
+newmtl screen
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd #screen
+
+newmtl intake
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd #intake
+
+newmtl label
+Kd 1 1 1
+Ka 0 0 0
+d 1
+map_Kd #label

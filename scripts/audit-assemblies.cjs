@@ -39,4 +39,27 @@ for(let mask=1;mask<64;mask++) {
   }
  });check(`cable-faces-${mask}`,mesh);
 }
+// Hydro: pump arrays, the eight turbine cells with rotor and louvers at several phases, and every pipe joint mask.
+const rx=(p,angle)=>{const a=angle*Math.PI/180;return [p[0],p[1]*Math.cos(a)-p[2]*Math.sin(a),p[1]*Math.sin(a)+p[2]*Math.cos(a)];};
+for(const [tier,w,d] of [[1,1,1],[2,2,1],[3,2,2]]) {
+ const mesh=[];
+ for(let row=0;row<d;row++)for(let col=0;col<w;col++)mesh.push(...faces(read(`hydro_pump_${tier}_${col}_${row}`),p=>[p[0]+16*col,p[1],p[2]+16*row],`${col}/${row}/`));
+ check(`hydro-pump-${tier}`,mesh);
+}
+const casing=[];
+for(let l=0;l<2;l++)for(let r=0;r<2;r++)for(let c=0;c<2;c++)casing.push(...faces(read(`hydro_turbine_${c}_${l}_${r}`),p=>[p[0]+16*c,p[1]+16*l,p[2]+16*r],`${c}/${l}/${r}/`));
+for(let angle=0;angle<60;angle+=5)for(const open of [0,0.5,1]) {
+ const mesh=[...casing],rotor=extra=>p=>{const v=rz([p[0]-8,p[1]-8,p[2]-8],angle+extra);return [16+v[0],16.5+v[1],25+v[2]];};
+ for(let blade=0;blade<6;blade++)mesh.push(...faces(read('hydro_rotor_blade'),rotor(blade*60),`blade${blade}/`));
+ mesh.push(...faces(read('hydro_rotor_hub'),rotor(0),'hub/'));
+ for(let i=0;i<3;i++)mesh.push(...faces(read('hydro_louver'),p=>{const v=rx([p[0]*25.6/16,p[1]-0.95,p[2]-8],-72*open);return [3.2+v[0],3+2*i+v[1],2+v[2]];},`louver${i}/`));
+ check(`hydro-turbine@${angle}/${open}`,mesh);
+}
+const armRot={north:p=>p,south:([x,y,z])=>[16-x,y,16-z],east:([x,y,z])=>[16-z,y,x],west:([x,y,z])=>[z,y,16-x],up:([x,y,z])=>[x,16-z,y],down:([x,y,z])=>[x,z,16-y]};
+const sides=Object.keys(armRot);
+for(let mask=0;mask<64;mask++) {
+ const mesh=[...faces(read('hydro_pipe_core'),p=>p,'core/')];
+ sides.forEach((side,i)=>{if(mask&(1<<i))mesh.push(...faces(read('hydro_pipe_arm'),armRot[side],side+'/'));});
+ check(`hydro-pipe-${mask}`,mesh);
+}
 console.log(JSON.stringify({assemblies,failures},null,2));if(failures.length)process.exitCode=1;

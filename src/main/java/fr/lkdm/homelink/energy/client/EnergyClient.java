@@ -16,6 +16,7 @@ public final class EnergyClient {
     public static void renderers(net.neoforged.neoforge.client.event.EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(EnergyRegistries.CABLE.get(), CableRenderer::new);
         event.registerBlockEntityRenderer(EnergyRegistries.WIND_TURBINE.get(), WindTurbineRenderer::new);
+        event.registerBlockEntityRenderer(EnergyRegistries.HYDRO_TURBINE.get(), HydroTurbineRenderer::new);
     }
 
     @SubscribeEvent
@@ -25,6 +26,12 @@ public final class EnergyClient {
         event.register(WindTurbineRenderer.TOWER); event.register(WindTurbineRenderer.NACELLE);
         event.register(WindTurbineRenderer.BLADE); event.register(WindTurbineRenderer.HUB);
         event.register(WindTurbineRenderer.NACELLE_2); event.register(WindTurbineRenderer.NACELLE_3);
+        event.register(HydroTurbineRenderer.HUB); event.register(HydroTurbineRenderer.BLADE); event.register(HydroTurbineRenderer.LOUVER);
+    }
+
+    @SubscribeEvent
+    public static void setup(net.neoforged.fml.event.lifecycle.FMLClientSetupEvent event) {
+        event.enqueueWork(HydroClientEffects::install);
     }
 
     @SubscribeEvent
@@ -32,5 +39,7 @@ public final class EnergyClient {
         event.register(EnergyRegistries.SOLAR_PANEL_MENU.get(), SolarPanelScreen::new);
         event.register(EnergyRegistries.BATTERY_MENU.get(), BatteryScreen::new);
         event.register(EnergyRegistries.WIND_MENU.get(), WindTurbineScreen::new);
+        event.register(EnergyRegistries.HYDRO_PUMP_MENU.get(), HydroPumpScreen::new);
+        event.register(EnergyRegistries.HYDRO_TURBINE_MENU.get(), HydroTurbineScreen::new);
     }
 }

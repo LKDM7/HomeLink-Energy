@@ -30,6 +30,8 @@ public final class EnergyHomeCore {
         DashboardAPI.registerDeviceProvider(EnergyRegistries.WIND_TURBINE.get(), turbine -> turbine.createDevice(event -> publish(turbine, event)));
         DashboardAPI.registerDeviceProvider(EnergyRegistries.SOLAR_PANEL.get(), panel -> panel.createDevice(event -> publish(panel, event)));
         DashboardAPI.registerDeviceProvider(EnergyRegistries.BATTERY.get(), battery -> battery.createDevice(event -> publish(battery, event)));
+        DashboardAPI.registerDeviceProvider(EnergyRegistries.HYDRO_PUMP.get(), pump -> pump.createDevice(event -> publish(pump, event)));
+        DashboardAPI.registerDeviceProvider(EnergyRegistries.HYDRO_TURBINE.get(), turbine -> turbine.createDevice(event -> publish(turbine, event)));
         HomeLinkEnergy.LOGGER.info("HomeLink Energy registered its HomeCore device providers (HomeCore API {})", DashboardAPI.API_VERSION);
     }
 

@@ -37,6 +37,7 @@ public final class BatteryDevice extends EnergyDevice {
     private final DeviceMetric<Double> production = flow(EnergyIds.NETWORK_PRODUCTION, "Network production");
     private final DeviceMetric<Double> solarProduction = flow(fr.lkdm.homelink.energy.HomeLinkEnergy.id("network_solar_production"), "Solar delivered");
     private final DeviceMetric<Double> windProduction = flow(fr.lkdm.homelink.energy.HomeLinkEnergy.id("network_wind_production"), "Wind delivered");
+    private final DeviceMetric<Double> hydroProduction = flow(fr.lkdm.homelink.energy.HomeLinkEnergy.id("network_hydro_production"), "Hydro delivered");
     private final DeviceMetric<Double> otherProduction = flow(fr.lkdm.homelink.energy.HomeLinkEnergy.id("network_other_production"), "Other delivered");
     private final DeviceMetric<Double> consumption = flow(EnergyIds.NETWORK_CONSUMPTION, "Network consumption");
     private final DeviceMetric<Double> netFlow = flow(EnergyIds.NETWORK_NET_FLOW, "Network net flow");
@@ -46,7 +47,7 @@ public final class BatteryDevice extends EnergyDevice {
     private final DeviceMetric<Integer> consumers = count(EnergyIds.NETWORK_CONSUMERS, "Network consumers", 65_536);
     private final DeviceMetric<Integer> batteries = count(EnergyIds.NETWORK_BATTERIES, "Network batteries", 65_536);
     private final List<DeviceMetric<?>> metrics = List.of(stored, capacity, percentage, input, output, tier, connected,
-            production, solarProduction, windProduction, otherProduction, consumption, netFlow, networkStored, networkCapacity, producers, consumers, batteries);
+            production, solarProduction, windProduction, hydroProduction, otherProduction, consumption, netFlow, networkStored, networkCapacity, producers, consumers, batteries);
     private final DeviceSchema schema;
     private final BatteryAlarms alarms = new BatteryAlarms();
     private boolean networkObserved;
@@ -76,6 +77,7 @@ public final class BatteryDevice extends EnergyDevice {
         production.setValue(linked ? network.production() : 0.0);
         solarProduction.setValue(linked ? network.production(fr.lkdm.homelink.energy.energy.EnergySourceType.SOLAR) : 0.0);
         windProduction.setValue(linked ? network.production(fr.lkdm.homelink.energy.energy.EnergySourceType.WIND) : 0.0);
+        hydroProduction.setValue(linked ? network.production(fr.lkdm.homelink.energy.energy.EnergySourceType.HYDRO) : 0.0);
         otherProduction.setValue(linked ? network.production(fr.lkdm.homelink.energy.energy.EnergySourceType.OTHER) : 0.0);
         consumption.setValue(linked ? network.consumption() : 0.0);
         netFlow.setValue(linked ? network.netFlow() : 0.0);

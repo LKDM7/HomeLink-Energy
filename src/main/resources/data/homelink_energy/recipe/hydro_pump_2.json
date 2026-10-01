@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "GMG",
+    "CTC",
+    "IKI"
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "M": {
+      "item": "homecore:homelink_microprocessor"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "T": {
+      "item": "homelink_energy:hydro_pump_1"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "K": {
+      "item": "homecore:homelink_control_module"
+    }
+  },
+  "result": {
+    "id": "homelink_energy:hydro_pump_2",
+    "count": 1
+  }
+}

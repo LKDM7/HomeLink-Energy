@@ -18,7 +18,8 @@ class ResourcesTest {
     private static final Path ASSETS = Path.of(System.getProperty("user.dir")).resolve(locate("src/main/resources/assets/homelink_energy"));
     private static final Path DATA = ASSETS.getParent().getParent().resolve("data/homelink_energy");
     private static final List<String> BLOCKS = List.of("solar_panel_1", "solar_panel_2", "solar_panel_3",
-            "wind_turbine_1", "wind_turbine_2", "wind_turbine_3", "battery_1", "battery_2", "battery_3", "copper_energy_cable");
+            "wind_turbine_1", "wind_turbine_2", "wind_turbine_3", "battery_1", "battery_2", "battery_3", "copper_energy_cable",
+            "hydro_pump_1", "hydro_pump_2", "hydro_pump_3", "hydro_pipe", "hydro_turbine");
 
     /** Unit tests may run from the project or from its run directory. */
     private static Path locate(String relative) {
@@ -91,6 +92,61 @@ class ResourcesTest {
                             assertFalse(same&&overlap,"Coplanar faces in "+path+": "+surface+" / "+other);
                         }
                         surfaces.add(surface);
+                    }
+                }
+            }
+        }
+    }
+
+    @Test void objModelsHaveValidResourcesAndStayInsideTheirMultiblockCells() throws IOException {
+        try (var files = Files.walk(ASSETS.resolve("models"))) {
+            for (var path : files.filter(p -> p.toString().endsWith(".json")).toList()) {
+                var model = json(path);
+                if (!model.has("loader") || !model.get("loader").getAsString().equals("neoforge:obj")) continue;
+                String resource = model.get("model").getAsString();
+                assertTrue(resource.startsWith("homelink_energy:models/"), resource);
+                var obj = ASSETS.resolve(resource.substring("homelink_energy:".length()));
+                assertTrue(Files.isRegularFile(obj), "Missing OBJ " + resource);
+                var materialNames = new java.util.HashSet<String>();
+                int positions = 0, texcoords = 0;
+                boolean isCell = path.getFileName().toString().matches("hydro_(pump_[123]_\\d_\\d|turbine_\\d_\\d_\\d)\\.json");
+                for (String line : Files.readAllLines(obj)) {
+                    String[] words = line.trim().split("\\s+");
+                    switch (words[0]) {
+                        case "mtllib" -> {
+                            var library = ASSETS.resolve(words[1].substring("homelink_energy:".length()));
+                            assertTrue(Files.isRegularFile(library), "Missing material library " + library);
+                            for (String entry : Files.readAllLines(library)) {
+                                if (entry.startsWith("newmtl ")) materialNames.add(entry.substring(7));
+                            }
+                        }
+                        case "usemtl" -> {
+                            assertTrue(materialNames.contains(words[1]), "Unknown material in " + obj);
+                            assertTrue(model.getAsJsonObject("textures").has(words[1]), "Unresolved texture in " + obj);
+                        }
+                        case "v" -> {
+                            assertEquals(4, words.length, "Malformed vertex in " + obj);
+                            for (int i = 1; i < 4; i++) {
+                                double value = Double.parseDouble(words[i]);
+                                assertTrue(Double.isFinite(value), "Nonfinite vertex in " + obj);
+                                if (isCell) assertTrue(value >= -1e-6 && value <= 1.000001, "Vertex escapes its cell in " + obj);
+                            }
+                            positions++;
+                        }
+                        case "vt" -> {
+                            for (int i = 1; i < words.length; i++) assertTrue(Double.isFinite(Double.parseDouble(words[i])));
+                            texcoords++;
+                        }
+                        case "f" -> {
+                            assertTrue(words.length == 4 || words.length == 5, "OBJ loader needs triangles or quads: " + obj);
+                            for (int i = 1; i < words.length; i++) {
+                                String[] indices = words[i].split("/");
+                                int vertex = Integer.parseInt(indices[0]), uv = Integer.parseInt(indices[1]);
+                                assertTrue(vertex > 0 && vertex <= positions, "Bad vertex reference in " + obj);
+                                assertTrue(uv > 0 && uv <= texcoords, "Bad UV reference in " + obj);
+                            }
+                        }
+                        default -> { }
                     }
                 }
             }

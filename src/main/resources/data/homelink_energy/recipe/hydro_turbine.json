@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "IKI",
+    "PMP",
+    "COC"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_block"
+    },
+    "K": {
+      "item": "homecore:homelink_control_module"
+    },
+    "P": {
+      "item": "minecraft:piston"
+    },
+    "M": {
+      "item": "homecore:homelink_microprocessor"
+    },
+    "C": {
+      "item": "minecraft:copper_block"
+    },
+    "O": {
+      "item": "homecore:homelink_communication_module"
+    }
+  },
+  "result": {
+    "id": "homelink_energy:hydro_turbine",
+    "count": 1
+  }
+}

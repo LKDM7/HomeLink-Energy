@@ -1,0 +1,58 @@
+{
+  "hydro_pump_running": {
+    "subtitle": "subtitles.homelink_energy.hydro_pump_running",
+    "sounds": [
+      {
+        "name": "minecraft:block/bubble_column/upwards_ambient1",
+        "pitch": 0.8
+      }
+    ]
+  },
+  "hydro_turbine_hum": {
+    "subtitle": "subtitles.homelink_energy.hydro_turbine_hum",
+    "sounds": [
+      {
+        "name": "minecraft:block/beacon/ambient",
+        "pitch": 0.6
+      }
+    ]
+  },
+  "hydro_discharge": {
+    "subtitle": "subtitles.homelink_energy.hydro_discharge",
+    "sounds": [
+      {
+        "name": "minecraft:liquid/water"
+      }
+    ]
+  },
+  "hydro_turbine_start": {
+    "subtitle": "subtitles.homelink_energy.hydro_turbine_start",
+    "sounds": [
+      {
+        "name": "minecraft:tile/piston/out",
+        "volume": 0.5,
+        "pitch": 0.7
+      }
+    ]
+  },
+  "hydro_turbine_stop": {
+    "subtitle": "subtitles.homelink_energy.hydro_turbine_stop",
+    "sounds": [
+      {
+        "name": "minecraft:tile/piston/in",
+        "volume": 0.5,
+        "pitch": 0.6
+      }
+    ]
+  },
+  "hydro_turbine_fan": {
+    "subtitle": "subtitles.homelink_energy.hydro_turbine_fan",
+    "sounds": [
+      {
+        "name": "minecraft:item/elytra/elytra_loop",
+        "volume": 0.6,
+        "pitch": 1
+      }
+    ]
+  }
+}
