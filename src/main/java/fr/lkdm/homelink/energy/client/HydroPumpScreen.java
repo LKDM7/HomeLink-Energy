@@ -1,6 +1,8 @@
 package fr.lkdm.homelink.energy.client;
 
 import fr.lkdm.homelink.energy.block.Formats;
+import fr.lkdm.homecore.api.client.ui.HomeLinkButton;
+import fr.lkdm.homecore.api.client.ui.HomeLinkTheme;
 import fr.lkdm.homelink.energy.hydro.HydroStatus;
 import fr.lkdm.homelink.energy.menu.HydroPumpMenu;
 import java.util.Locale;
@@ -13,10 +15,13 @@ import net.minecraft.world.phys.AABB;
 /** Pump telemetry. Values come exclusively from the menu; the water zone preview is the server window. */
 public final class HydroPumpScreen extends EnergyScreen<HydroPumpMenu> {
     public HydroPumpScreen(HydroPumpMenu menu, Inventory inventory, Component title) { super(menu, inventory, title, 262); }
+    @Override protected boolean hasActionRow() { return true; }
 
     @Override protected void init() {
         super.init();
-        addRenderableWidget(EnergyButton.builder(tr("hydro_show_water"), b -> showWindow()).bounds(leftPos + 10, topPos + 211, imageWidth - 20, 18).build());
+        if (canShowActions()) addRenderableWidget(HomeLinkButton.builder(tr("hydro_show_water"), b -> showWindow())
+                .bounds(leftPos + HomeLinkTheme.CONTENT_PADDING, actionY(), imageWidth - 2 * HomeLinkTheme.CONTENT_PADDING,
+                        HomeLinkTheme.CONTROL_HEIGHT).build());
     }
 
     private void showWindow() {

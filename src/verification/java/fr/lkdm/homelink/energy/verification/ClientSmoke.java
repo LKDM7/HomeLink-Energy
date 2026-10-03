@@ -182,7 +182,10 @@ public final class ClientSmoke {
                 if(++age<40) return;
                 capture(mc,"wind-obstacle"); stage=40; HydroClientSmoke.begin(mc,batteryPos.offset(60,0,0));
             } else if(stage==40 && HydroClientSmoke.tick(mc)) {
-                HomeLinkEnergy.LOGGER.info("ENERGY_SMOKE_OK language={} models=15 panelRate=true batteryCharge=true menuDistance=true windSpeed=true windMenu=true windOverlay=true obstruction=true hydroFlow=true hydroMenus=true hydroWaterZone=true hydroOutlet=true",mc.options.languageCode);
+                EnergyGuiSmoke.begin(mc);
+                stage = 41;
+            } else if (stage == 41 && EnergyGuiSmoke.tick(mc)) {
+                HomeLinkEnergy.LOGGER.info("ENERGY_SMOKE_OK language={} models=15 panelRate=true batteryCharge=true menuDistance=true windSpeed=true windMenu=true windOverlay=true obstruction=true hydroFlow=true hydroMenus=true hydroWaterZone=true hydroOutlet=true guiKit=true guiBounds=true guiFocus=true guiScroll=true",mc.options.languageCode);
                 stop(mc);
             }
         } catch(Throwable t) { HomeLinkEnergy.LOGGER.error("ENERGY_SMOKE_FAILED",t); stop(mc); }
@@ -291,6 +294,7 @@ public final class ClientSmoke {
         player.teleportTo(level,origin.getX()-3.5,origin.getY()+5.5,origin.getZ()+12.5,-138,28);
     }
     static void capture(Minecraft mc,String name) {
+        EnergyGuiSmoke.remember(mc);
         Screenshot.grab(mc.gameDirectory,"energy-"+name+"-"+mc.options.languageCode+".png",mc.getMainRenderTarget(),message->HomeLinkEnergy.LOGGER.info("{}",message.getString()));
     }
     private static void stop(Minecraft mc) {

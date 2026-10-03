@@ -32,15 +32,23 @@ La branche Hydro ajoute trois **Pompes Hydro** (1×1×1, 2×1×1, 2×1×2), la *
 
 Détails, repère local des ports, états, configuration `[hydro]` et dépannage : [docs/HYDRO.md](docs/HYDRO.md). Bilan chiffré : [équilibrage](docs/ENERGY_BALANCE.md#hydro--valeurs-de-départ-et-comparaison-1er-octobre-2026). Le widget agrégé du Dashboard n'est pas modifié (voir les limites).
 
+## Interfaces communes HomeLink
+
+Les cinq interfaces machine utilisent le kit client public de HomeCore 1.14.0 : header 29 px, boutons 18 px, graphite/acier/cuivre et focus clavier visible. Les surfaces s'adaptent à la fenêtre et au GUI scale ; la télémétrie défile avec la molette ou PageUp/PageDown, tandis que le rattachement réseau et les actions restent visibles. Les jauges d'eau et overlays monde conservent leurs couleurs fonctionnelles.
+
+Le [guide de migration FR/EN](docs/UI_MIGRATION.md) décrit les classes supprimées, les règles pour les futurs écrans et la revue des cinq screens à trois tailles. Aucun thème n'est recopié et Dashboard n'est pas requis. HomeCore 1.14.0 / API 1.9.0 reste un JAR séparé, avec une dépendance explicite dans Gradle et les métadonnées NeoForge.
+
+**English:** Battery, Solar, Wind, Hydro Pump and Hydro Turbine consume the public HomeCore UI Kit. Their surfaces fit the scaled window, telemetry scrolls, and network/overlay actions remain visible. Native narration, keyboard focus and semantic water colors are preserved. See the [French/English migration guide](docs/UI_MIGRATION.md) for extension and validation details.
+
 ## JEI et REI
 
 Avec JEI (19.0 ou plus récent) ou REI (16.0 ou plus récent), chaque objet du mod a une page d'information (onglet « i » de JEI, « Information » de REI) qui résume production, capacités et règles de pose, en français et en anglais. Les recettes de fabrication s'y affichent comme les autres. Ces deux mods restent facultatifs et côté client.
 
 ## Installer
 
-Copier `homelink_energy-0.5.0.jar` et `homecore-1.13.0.jar` du dossier `build/release/` dans `mods/`, côté client et serveur. Installer NeoForge pour Minecraft 1.21.1 et utiliser Java 21. Ne pas installer deux versions de HomeCore.
+Copier `homelink_energy-0.5.0.jar` et `homecore-1.14.0.jar` du dossier `build/release/` dans `mods/`, côté client et serveur. Installer NeoForge pour Minecraft 1.21.1 et utiliser Java 21. Ne pas installer deux versions de HomeCore.
 
-HomeCore **1.13.0** (API publique **1.8.0**) est obligatoire et reste un JAR séparé. La dépendance publiée est explicite dans `gradle.properties`. Pour travailler sur les deux projets, activer le composite avec `-PuseLocalDependencies=true` et un checkout voisin de même version ; aucun `publishToMavenLocal` n'est nécessaire.
+HomeCore **1.14.0** (API publique **1.9.0**) est obligatoire et reste un JAR séparé. La version demandée est explicite dans `gradle.properties` ; cela ne signifie pas que son package Maven a déjà été publié. Pour travailler sur les deux projets, activer le composite avec `-PuseLocalDependencies=true` et un checkout voisin de même version ; aucun `publishToMavenLocal` n'est nécessaire.
 
 ## Utiliser
 
@@ -48,7 +56,7 @@ Poser une batterie, puis un panneau directement dessus, dans l'Overworld. Le pan
 
 Les panneaux occupent désormais **1×1 bloc (I), 2×1 blocs (II) et 2×2 blocs (III)** au sol. Leur largeur suit l'orientation du joueur au placement. Toute l'emprise doit être libre ; un obstacle annule la pose. Les parties d'un ensemble partagent un seul contrôleur et une seule production : clic droit sur n'importe quelle partie pour ouvrir son interface, cassage d'une partie pour démonter l'ensemble. Un seul panneau est récupérable avec l'outil adapté. Toutes les cellules doivent voir le ciel. La sortie automatique vers une batterie se trouve sous la case d'origine ; les sorties par câble sont accessibles sur les côtés et le dessous des autres cases.
 
-Les batteries occupent elles aussi **1×1 bloc (I), 2×1 blocs (II) et 2×2 blocs (III)**. Elles conservent leurs silhouettes : accumulateur avec poignée, deux cellules reliées par un pont cuivre, puis armoire industrielle à trois tiroirs et dissipateurs. Toute l'emprise doit être libre au placement. Chaque partie ouvre la même interface et expose le même stockage HE ; casser une partie démonte l'ensemble et rend un seul objet avec l'outil adapté. Les maillages sont découpés aux limites des cases sans faces superposées aux jointures. Les interfaces reprennent le thème de HomeLink-Farm : cadre métallique, panneaux en creux, vis et accents beige doré.
+Les batteries occupent elles aussi **1×1 bloc (I), 2×1 blocs (II) et 2×2 blocs (III)**. Elles conservent leurs silhouettes : accumulateur avec poignée, deux cellules reliées par un pont cuivre, puis armoire industrielle à trois tiroirs et dissipateurs. Toute l'emprise doit être libre au placement. Chaque partie ouvre la même interface et expose le même stockage HE ; casser une partie démonte l'ensemble et rend un seul objet avec l'outil adapté. Les maillages sont découpés aux limites des cases sans faces superposées aux jointures. Les interfaces utilisent le HomeCore UI Kit partagé : cadre métallique, panneaux en creux, vis et accents cuivre.
 
 Les anciennes batteries s'agrandissent automatiquement si l'emprise est vide, en conservant leur charge et leur UUID HomeCore. Un obstacle suspend cet agrandissement et les transferts, avec l'état **Socle incomplet**, jusqu'à ce que l'espace soit dégagé. Aucun bloc voisin n'est écrasé. Voir la [validation des batteries](docs/BATTERY_FOOTPRINT.md).
 
@@ -119,7 +127,7 @@ IDs HomeCore vérifiés : `homecore:homelink_circuit_board`, `homecore:homelink_
 
 ## Construire et vérifier
 
-Pour développer localement, placer HomeCore 1.13.0 dans `../HomeCore` ou préciser `-Phomecore_dir=<chemin>`. Le composite utilise ces sources avec contrôle de version. Après publication du package, `-PuseLocalDependencies=false` utilise la dépendance Maven exacte, avec les identifiants GitHub Packages décrits dans la documentation HomeCore. Aucun `publishToMavenLocal` n'est nécessaire.
+Pour développer localement, placer HomeCore 1.14.0 dans `../HomeCore` ou préciser `-Phomecore_dir=<chemin>`. Le composite utilise ces sources avec contrôle de version. Après publication du package, `-PuseLocalDependencies=false` utilise la dépendance Maven exacte, avec les identifiants GitHub Packages décrits dans la documentation HomeCore. Aucun `publishToMavenLocal` n'est nécessaire.
 
 ```powershell
 # Depuis la racine ; JAVA_HOME doit désigner un JDK 21.

@@ -14,6 +14,9 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: HomeLinkEnergy
     env:
       GITHUB_ACTOR: ${{ github.actor }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -21,6 +24,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          path: HomeLinkEnergy
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: LKDM7/HomeCore
+          ref: dbcd1dc9fe694796780498ef1628903c89f6d04f
+          path: HomeCore
+          token: ${{ secrets.HOMELINK_REPOSITORIES_TOKEN || github.token }}
           persist-credentials: false
       - uses: actions/setup-java@v4
         with:
@@ -28,26 +39,29 @@ jobs:
           java-version: '21'
       - uses: gradle/actions/setup-gradle@v4
       - name: Build, unit tests and release archive
-        run: bash gradlew build test verifyReleaseJar -PuseLocalDependencies=false --no-daemon --no-configuration-cache
+        run: bash gradlew build test verifyReleaseJar -PuseLocalDependencies=true --no-daemon --no-configuration-cache
       - name: Server GameTests
-        run: bash gradlew runGameTestServer -PuseLocalDependencies=false --no-daemon --no-configuration-cache
+        run: bash gradlew runGameTestServer -PuseLocalDependencies=true --no-daemon --no-configuration-cache
+      - name: Stage the exact HomeCore dependency locally
+        run: bash ../HomeCore/gradlew -p ../HomeCore publishMavenJavaPublicationToStagingRepository --no-daemon --no-configuration-cache
       - name: Stage Maven publication
-        run: bash gradlew publishMavenJavaPublicationToStagingRepository -PuseLocalDependencies=false --no-daemon --no-configuration-cache
+        run: bash gradlew publishMavenJavaPublicationToStagingRepository -PuseLocalDependencies=true --no-daemon --no-configuration-cache
       - name: Resolve staged publication in an independent consumer
-        run: bash gradlew -p .github/publication-smoke verifyPublishedArtifacts --no-daemon --no-configuration-cache
+        run: bash gradlew -p .github/publication-smoke verifyPublishedArtifacts -Phomecore_staging_repo="${{ github.workspace }}/HomeCore/build/staging-repository" --no-daemon --no-configuration-cache
       - name: Preserve reports and GameTest logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: energy-validation
           path: |
-            build/reports/
-            build/test-results/
-            build/gametest/logs/
-            build/persistence/logs/
-            build/validation/**/logs/
+            HomeLinkEnergy/build/reports/
+            HomeLinkEnergy/build/test-results/
+            HomeLinkEnergy/build/gametest/logs/
+            HomeLinkEnergy/build/persistence/logs/
+            HomeLinkEnergy/build/validation/**/logs/
+            HomeCore/build/reports/
       - name: Preserve release JARs separately
         uses: actions/upload-artifact@v4
         with:
           name: energy-jars
-          path: build/libs/*.jar
+          path: HomeLinkEnergy/build/libs/*.jar

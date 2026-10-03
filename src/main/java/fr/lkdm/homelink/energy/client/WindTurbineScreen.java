@@ -1,6 +1,8 @@
 package fr.lkdm.homelink.energy.client;
 
 import fr.lkdm.homelink.energy.block.Formats;
+import fr.lkdm.homecore.api.client.ui.HomeLinkButton;
+import fr.lkdm.homecore.api.client.ui.HomeLinkTheme;
 import fr.lkdm.homelink.energy.blockentity.WindTurbineBlockEntity;
 import fr.lkdm.homelink.energy.menu.WindTurbineMenu;
 import fr.lkdm.homelink.energy.wind.*;
@@ -15,10 +17,16 @@ import net.minecraft.core.BlockPos;
 public final class WindTurbineScreen extends EnergyScreen<WindTurbineMenu> {
     private net.minecraft.client.gui.components.Button locate;
     public WindTurbineScreen(WindTurbineMenu menu,Inventory inventory,Component title) { super(menu,inventory,title,286); }
+    @Override protected boolean hasActionRow() { return true; }
     @Override protected void init() {
         super.init();
-        addRenderableWidget(EnergyButton.builder(tr("rotor_area"),b->show(false)).bounds(leftPos+10,topPos+235,138,18).build());
-        locate=addRenderableWidget(EnergyButton.builder(tr("locate_obstruction"),b->show(true)).bounds(leftPos+154,topPos+235,140,18).build());
+        locate = null;
+        if (!canShowActions()) return;
+        int half = (imageWidth - 2 * HomeLinkTheme.CONTENT_PADDING - 6) / 2;
+        addRenderableWidget(HomeLinkButton.builder(tr("rotor_area"),b->show(false))
+                .bounds(leftPos+HomeLinkTheme.CONTENT_PADDING,actionY(),half,HomeLinkTheme.CONTROL_HEIGHT).build());
+        locate=addRenderableWidget(HomeLinkButton.builder(tr("locate_obstruction"),b->show(true))
+                .bounds(leftPos+HomeLinkTheme.CONTENT_PADDING+half+6,actionY(),half,HomeLinkTheme.CONTROL_HEIGHT).build());
     }
     private void show(boolean obstruction) {
         if(minecraft==null || minecraft.level==null || !(minecraft.level.getBlockEntity(menu.pos()) instanceof WindTurbineBlockEntity turbine)) return;

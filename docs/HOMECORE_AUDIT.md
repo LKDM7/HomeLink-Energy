@@ -1,3 +1,7 @@
+## État actuel — UI Kit
+
+Energy 0.5.0 dépend désormais de HomeCore 1.14.0 / API 1.9.0. Le chrome partagé vient de l'API client publique ; voir [UI_MIGRATION.md](UI_MIGRATION.md). Les audits ci-dessous sont historiques et leurs anciennes versions de dépendance ne décrivent pas l'installation actuelle.
+
 # Audit de la dépendance
 
 Inspection du 26 septembre 2026, avant adaptation du code.
