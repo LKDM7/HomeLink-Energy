@@ -18,6 +18,7 @@ import fr.lkdm.homelink.energy.hydro.HydroLayout;
 import fr.lkdm.homelink.energy.hydro.HydroParameters;
 import fr.lkdm.homelink.energy.hydro.HydroStatus;
 import fr.lkdm.homelink.energy.hydro.WaterWindow;
+import fr.lkdm.homelink.energy.menu.HydroPumpMenu;
 import fr.lkdm.homelink.energy.registry.EnergyRegistries;
 import java.util.HashSet;
 import java.util.List;
@@ -80,6 +81,37 @@ public final class HydroGameTests {
 
     private static long sources(GameTestHelper h, Set<BlockPos> cells) {
         return cells.stream().filter(pos -> h.getLevel().getBlockState(pos).is(Blocks.WATER) && h.getLevel().getFluidState(pos).isSource()).count();
+    }
+
+    @GameTest(template = "empty", batch = "hydro_water_preview", timeoutTicks = 100)
+    public static void waterPreviewMatchesDetectionForEveryPumpAndFacing(GameTestHelper h) {
+        var level = h.getLevel();
+        var player = FakePlayerFactory.get(level, new GameProfile(UUID.randomUUID(), "hydro_preview"));
+        BlockPos origin = h.absolutePos(new BlockPos(10, 4, 10));
+        var blocks = List.of(EnergyRegistries.HYDRO_PUMP_1.get(), EnergyRegistries.HYDRO_PUMP_2.get(), EnergyRegistries.HYDRO_PUMP_3.get());
+        int[] totals = {18, 50, 147};
+        for (int tier = 0; tier < blocks.size(); tier++) for (Direction facing : Direction.Plane.HORIZONTAL) {
+            var block = blocks.get(tier);
+            place(h, block, origin, facing);
+            var water = basin(h, origin, block, facing);
+            var pump = (HydroPumpBlockEntity) level.getBlockEntity(origin);
+            HydroPumpBlockEntity.serverTick(level, origin, level.getBlockState(origin), pump);
+            check(h, !pump.water().unknown() && pump.water().sources() == totals[tier], "Detection " + block.tier() + " / " + facing + ": " + pump.water());
+            var menu = (HydroPumpMenu) pump.createMenu(1, player.getInventory(), player);
+            BlockPos min = new BlockPos(menu.value(HydroPumpMenu.MIN_X), menu.value(HydroPumpMenu.MIN_Y), menu.value(HydroPumpMenu.MIN_Z));
+            BlockPos max = new BlockPos(menu.value(HydroPumpMenu.MAX_X), menu.value(HydroPumpMenu.MAX_Y), menu.value(HydroPumpMenu.MAX_Z));
+            var preview = new AABB(min.getX(), min.getY(), min.getZ(), max.getX() + 1, max.getY() + 1, max.getZ() + 1);
+            check(h, preview.equals(pump.window().bounds()), "Preview differs from scan " + block.tier() + " / " + facing);
+            check(h, menu.value(HydroPumpMenu.SOURCES) == totals[tier] && menu.value(HydroPumpMenu.REQUIRED) == totals[tier], "Menu count " + block.tier() + " / " + facing);
+            for (BlockPos cell : water) check(h, preview.contains(cell.getCenter()), "Detected source outside preview: " + cell);
+            for (BlockPos cell : block.positions(origin, level.getBlockState(origin)))
+                check(h, !preview.contains(cell.getCenter()), "Preview overlaps pump: " + cell);
+            // Remove the master first so no watched water windows or multiblock parts survive the case.
+            level.removeBlock(origin, false);
+            for (BlockPos cell : BlockPos.betweenClosed(min.offset(-1, -1, -1), max.offset(1, 0, 1)))
+                level.setBlock(cell.immutable(), Blocks.AIR.defaultBlockState(), 2);
+        }
+        h.succeed();
     }
 
     /** Pump III facing north at (5,4,10), 16 pipes, turbine facing north at (14,4,14), consumer on the HE output face. */

@@ -18,7 +18,8 @@ import net.minecraft.world.phys.AABB;
  * columns -1..3; Pump III: columns -2..4). Rows 1..distance lie in front of the intake; layers run
  * from the intake level down to {@code depth - 1} blocks below it.</p>
  *
- * <p>Only water sources reachable face to face from the cells directly in front of the intake count,
+ * <p>Only water sources reachable face to face from the cells directly in front of the intake and
+ * inside the window count,
  * each once. A cell that is not a water source (air, flowing water, waterlogged block, lava, wall)
  * stops the flood fill. Any unloaded cell makes the result unknown; nothing is loaded to answer.</p>
  */
@@ -65,7 +66,9 @@ public final class WaterWindow {
         BlockPos min = new BlockPos(Math.min(a.getX(), b.getX()), a.getY(), Math.min(a.getZ(), b.getZ()));
         BlockPos max = new BlockPos(Math.max(a.getX(), b.getX()), b.getY(), Math.max(a.getZ(), b.getZ()));
         List<BlockPos> seeds = new ArrayList<>(machineWidth);
-        for (int column = 0; column < machineWidth; column++) seeds.add(origin.relative(right, column).relative(facing).immutable());
+        // Configured windows may be narrower than the pump: never seed a scan outside its preview.
+        for (int column = Math.max(0, first); column < Math.min(machineWidth, first + width); column++)
+            seeds.add(origin.relative(right, column).relative(facing).immutable());
         return new WaterWindow(min, max, List.copyOf(seeds));
     }
 

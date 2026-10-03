@@ -89,6 +89,13 @@ final class HydroClientSmoke {
             case 6 -> {
                 if (!(mc.screen instanceof HydroPumpScreen) || !(mc.player.containerMenu instanceof HydroPumpMenu menu) || ++age < 30) return false;
                 if (menu.value(HydroPumpMenu.SOURCES) != 147 || menu.value(HydroPumpMenu.ALLOCATED_FLOW) != 12_000) throw new IllegalStateException("Pump menu mismatch");
+                var p = HydroParameters.DEFAULT;
+                var tier = EnergyRegistries.HYDRO_PUMP_3.get().tier();
+                var expected = WaterWindow.of(origin, Direction.NORTH, tier.width(), p.windowWidth(tier), p.windowDistance(tier), p.windowDepth(tier));
+                var min = new BlockPos(menu.value(HydroPumpMenu.MIN_X), menu.value(HydroPumpMenu.MIN_Y), menu.value(HydroPumpMenu.MIN_Z));
+                var max = new BlockPos(menu.value(HydroPumpMenu.MAX_X), menu.value(HydroPumpMenu.MAX_Y), menu.value(HydroPumpMenu.MAX_Z));
+                if (!menu.pos().equals(origin) || !min.equals(expected.min()) || !max.equals(expected.max()) || menu.value(HydroPumpMenu.REQUIRED) != expected.cells())
+                    throw new IllegalStateException("Water preview coordinates differ from the detection window");
                 ClientSmoke.capture(mc, "hydro-pump-gui");
                 ClientSmoke.click(mc, "gui.homelink_energy.hydro_show_water");
                 stage = 7; age = 0;
@@ -167,7 +174,7 @@ final class HydroClientSmoke {
         HydroPumpBlock pump = EnergyRegistries.HYDRO_PUMP_3.get();
         place(level, pump, origin, Direction.NORTH, player);
         var p = HydroParameters.DEFAULT;
-        var window = WaterWindow.of(origin, Direction.NORTH, 2, p.windowWidth(pump.tier()), p.windowDistance(pump.tier()), p.windowDepth(pump.tier()));
+        var window = WaterWindow.of(origin, Direction.NORTH, pump.tier().width(), p.windowWidth(pump.tier()), p.windowDistance(pump.tier()), p.windowDepth(pump.tier()));
         var footprint = new HashSet<>(pump.positions(origin, level.getBlockState(origin)));
         for (BlockPos pos : BlockPos.betweenClosed(window.min().offset(-1, -1, -1), window.max().offset(1, 0, 1)))
             if (!window.contains(pos) && !footprint.contains(pos)) level.setBlockAndUpdate(pos.immutable(), stone);

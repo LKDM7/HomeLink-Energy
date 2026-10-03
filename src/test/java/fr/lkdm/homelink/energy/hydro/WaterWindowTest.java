@@ -3,6 +3,7 @@ package fr.lkdm.homelink.energy.hydro;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -60,6 +61,52 @@ class WaterWindowTest {
             assertEquals(1.0, result.availability(), 1e-12);
             assertFalse(result.unknown());
         }
+    }
+
+    @Test void displayedVolumeMatchesEveryDetectedCellInAllOrientations() {
+        for (HydroPumpTier tier : HydroPumpTier.values()) for (Direction facing : Direction.Plane.HORIZONTAL) {
+            var w = window(tier, facing);
+            var p = HydroParameters.DEFAULT;
+            var expected = new HashSet<BlockPos>();
+            int first = -Math.floorDiv(p.windowWidth(tier) - tier.width(), 2);
+            for (int column = first; column < first + p.windowWidth(tier); column++)
+                for (int row = 1; row <= p.windowDistance(tier); row++)
+                    for (int layer = 0; layer < p.windowDepth(tier); layer++)
+                        expected.add(ORIGIN.relative(facing.getClockWise(), column).relative(facing, row).below(layer));
+            var displayed = new HashSet<BlockPos>();
+            for (BlockPos pos : BlockPos.betweenClosed(w.min(), w.max())) {
+                displayed.add(pos.immutable());
+                assertTrue(w.bounds().contains(pos.getCenter()), tier + " / " + facing + " / " + pos);
+            }
+            assertEquals(expected, displayed, tier + " / " + facing);
+            var world = new World();
+            world.fill(w);
+            assertEquals(expected.size(), w.scan(world).sources(), tier + " / " + facing);
+            // Every cell contributes once, unless removing it blocks the pump's only intake.
+            for (BlockPos pos : expected) {
+                world.cells.put(pos, WaterWindow.Cell.OTHER);
+                int count = w.seeds().size() == 1 && w.seeds().contains(pos) ? 0 : expected.size() - 1;
+                assertEquals(count, w.scan(world).sources(), tier + " / " + facing + " / " + pos);
+                world.cells.put(pos, WaterWindow.Cell.SOURCE);
+            }
+            // Sources touching the outside of the box never contribute.
+            for (BlockPos pos : BlockPos.betweenClosed(w.min().offset(-1, -1, -1), w.max().offset(1, 1, 1)))
+                world.cells.put(pos.immutable(), WaterWindow.Cell.SOURCE);
+            assertEquals(expected.size(), w.scan(world).sources(), tier + " / " + facing);
+        }
+    }
+
+    @Test void configuredWindowNarrowerThanPumpNeverProbesOutsideDisplayedVolume() {
+        for (HydroPumpTier tier : HydroPumpTier.values()) for (Direction facing : Direction.Plane.HORIZONTAL)
+            for (int width = 1; width <= tier.width(); width++) {
+                var w = WaterWindow.of(ORIGIN, facing, tier.width(), width, 3, 2);
+                var result = w.scan(pos -> {
+                    assertTrue(w.contains(pos), "Probe outside preview: " + tier + " / " + facing + " / " + pos);
+                    return WaterWindow.Cell.SOURCE;
+                });
+                assertEquals(width * 3 * 2, result.sources());
+                assertEquals(1.0, result.availability());
+            }
     }
 
     @Test void isolatedSourceIsNotFullOutput() {
