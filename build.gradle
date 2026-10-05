@@ -218,7 +218,7 @@ publishing {
             name = 'HomeLink Energy'
             description = 'Renewable production, storage and distribution of HomeLink Energy.'
             url = 'https://github.com/LKDM7/HomeLink-Energy'
-            licenses { license { name = 'Apache License, Version 2.0'; url = 'https://www.apache.org/licenses/LICENSE-2.0.txt' } }
+            licenses { license { name = 'All Rights Reserved' } }
             scm { url = 'https://github.com/LKDM7/HomeLink-Energy'; connection = 'scm:git:https://github.com/LKDM7/HomeLink-Energy.git' }
         }
     }

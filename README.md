@@ -147,3 +147,7 @@ Configuration : `serverconfig/homelink_energy-server.toml` dans le monde ; NeoFo
 Les textures 16×16 anthracite/gris/cuivre et cellules bleu sombre proviennent de `scripts/GenerateTextures.java`. Les neuf matériaux éoliens 32×32 (acier peint, graphite, cuivre, laiton, pales, grilles et plaques) proviennent de `scripts/GenerateWindTextures.java`. Les maillages détaillés, modèles d'items complets et variantes orientées sont générés par `node scripts/wind-models.cjs` puis `node scripts/generate-models.cjs`. Les audits `scripts/audit-models.cjs` et `scripts/audit-assemblies.cjs` contrôlent les surfaces superposées susceptibles de scintiller. Voir le [rapport visuel et les captures](docs/VISUAL_VALIDATION.md). Traductions `fr_fr` et `en_us` incluses.
 
 Voir [équilibrage](docs/ENERGY_BALANCE.md), [validation et limites](docs/VALIDATION.md), [audit HomeCore](docs/HOMECORE_AUDIT.md) et [commandes exécutées](docs/WORK_LOG.md). `archive/pre-part1-workspace.zip` conserve le prototype initial avant adaptation.
+
+## Licence
+
+Tous droits réservés © 2026 LKDM. Le code source est visible à titre de référence uniquement ; toute copie, modification ou redistribution nécessite une autorisation écrite. Voir [LICENSE](LICENSE).
