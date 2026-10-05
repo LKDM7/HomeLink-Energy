@@ -259,4 +259,6 @@ tasks.register('publishToCurseForge', net.darkhax.curseforgegradle.TaskPublishCu
     mainFile.addEnvironment('Client', 'Server')
     mainFile.addModLoader('NeoForge')
     mainFile.addRequirement('homecore')
+    mainFile.addOptional('jei')
+    mainFile.addOptional('roughly-enough-items')
 }
